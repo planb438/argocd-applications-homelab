@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgres
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/planb438/git-ops.git
+    path: charts/postgres
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values.yaml
+      # You can also override specific values inline
+      parameters:
+        - name: auth.postgresPassword
+          value: "MyStr0ngP@ssw0rd!"
+        - name: auth.username
+          value: "myapp_user"
+        - name: auth.password
+          value: "UserP@ssw0rd123!"
+        - name: auth.database
+          value: "myapp_db"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: postgres
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

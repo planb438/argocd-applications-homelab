@@ -7,7 +7,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/planb438/word-press-microk8s.git
+    repoURL: https://github.com/planb438/git-ops.git
     targetRevision: HEAD
     path: manifests
   destination:

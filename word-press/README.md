@@ -1,9 +1,13 @@
 Using Argo CD to deploy WordPress is an excellent GitOps approach. Here's how to do it:
 
+---
+
 Step 1: Create a Git Repository for Your WordPress Manifest
 First, create a new GitHub repository (or any Git repo) for your WordPress configuration.
 
---
+
+---
+
 
 Step 2: Create WordPress Application Manifest
 Create wordpress-app.yaml in your Git repository:
@@ -31,7 +35,7 @@ spec:
     syncOptions:
     - CreateNamespace=true
     
---
+---
     
 Step 3: Create WordPress Kubernetes Manifests
 Create a manifests/ directory in your Git repo with these files:
@@ -39,7 +43,7 @@ Create a manifests/ directory in your Git repo with these files:
 manifests/namespace.yaml
 yaml
 
---
+
 
 apiVersion: v1
 kind: Namespace
@@ -226,7 +230,9 @@ resources:
 - mysql.yaml
 - wordpress.yaml
 
---
+
+---
+
 
 Step 4: Deploy Using Argo CD
 bash
@@ -248,6 +254,9 @@ argocd app sync wordpress
 
 # Check application status
 argocd app get wordpress
+
+---
+
 Step 5: Monitor the Deployment
 bash
 # Watch the application deployment
@@ -262,6 +271,9 @@ microk8s kubectl get svc -n wordpress
 # Get the WordPress URL
 WORDPRESS_IP=$(microk8s kubectl get svc -n wordpress wordpress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 echo "WordPress URL: http://$WORDPRESS_IP"
+
+---
+
 Step 6: Set Up Automatic Syncing (Optional)
 yaml
 # Add this to your wordpress-app.yaml for automatic syncing
@@ -271,6 +283,10 @@ syncPolicy:
     prune: true
   syncOptions:
   - CreateNamespace=true
+
+---
+
+
 Step 7: Add Ingress for Better Access (Optional)
 manifests/ingress.yaml
 yaml
@@ -302,6 +318,9 @@ resources:
 - mysql.yaml
 - wordpress.yaml
 - ingress.yaml
+
+---
+
 Step 8: Update and Sync
 Whenever you make changes to your Git repository:
 
@@ -312,6 +331,9 @@ argocd app sync wordpress
 
 # Check sync status
 argocd app get wordpress
+
+---
+
 Step 9: Access Argo CD UI to Manage
 bash
 # Get Argo CD admin password

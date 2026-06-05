@@ -1,0 +1,6 @@
+resources:
+- namespace.yaml
+- postgres-deployment.yaml
+- wiki-deployment.yaml
+- wiki-service.yaml
+- wiki-pv-pvc.yaml

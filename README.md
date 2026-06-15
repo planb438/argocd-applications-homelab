@@ -20,62 +20,62 @@ A **GitOps-driven** repository containing Kubernetes application manifests for m
 
 ### 📊 Applications Managed
 
-| Application | Type | Deployment Method | Sync Status |
-|-------------|------|-------------------|--------------|
-| PostgreSQL | Database | Helm + Kustomize | ✅ |
-| WordPress | CMS | Helm + Kustomize | ✅ |
-| Odoo | ERP | Kustomize | ✅ |
-| Nextcloud | Cloud Storage | Helm + Kustomize | ✅ |
-| Snipe-IT | Asset Management | Kustomize | ✅ |
-| Dolibarr | ERP/CRM | Kustomize | ✅ |
-| Prometheus + Grafana | Monitoring | Helm + Kustomize | ✅ |
-| MinIO + Velero | Backup | Kustomize | ✅ |
-| ERPNext | ERP System | Kustomize | ✅ |
+#### | Application | Type | Deployment Method | Sync Status |
+#### |-------------|------|-------------------|--------------|
+#### | PostgreSQL | Database | Helm + Kustomize | ✅ |
+#### | WordPress | CMS | Helm + Kustomize | ✅ |
+#### | Odoo | ERP | Kustomize | ✅ |
+#### | Nextcloud | Cloud Storage | Helm + Kustomize | ✅ |
+#### | Snipe-IT | Asset Management | Kustomize | ✅ |
+#### | Dolibarr | ERP/CRM | Kustomize | ✅ |
+#### | Prometheus + Grafana | Monitoring | Helm + Kustomize | ✅ |
+#### | MinIO + Velero | Backup | Kustomize | ✅ |
+#### | ERPNext | ERP System | Kustomize | ✅ |
 
 ## 📁 Repository Structure
-gitops-homelab/
-├── postgres/ # PostgreSQL database
-│ ├── kustomization.yaml # Kustomize configuration
-│ ├── deployment.yaml # StatefulSet deployment
-│ ├── service.yaml # ClusterIP service
-│ ├── secret.yaml # Encrypted secrets
-│ └── pvc.yaml # Persistent volume claim
-│
-├── word-press/ # WordPress CMS
-│ ├── kustomization.yaml
-│ ├── wordpress-app.yaml # Argo CD Application
-│ └── values.yaml # Helm values override
-│
-├── odoo-argocd/ # Odoo ERP
-│ ├── kustomization.yaml
-│ └── deployment.yaml
-│
-├── nextcloud-gitops/ # Nextcloud storage
-│ ├── kustomization.yaml
-│ └── values.yaml
-│
-├── snipeit-argocd/ # Snipe-IT asset management
-│ ├── kustomization.yaml
-│ └── deployment.yaml
-│
-├── dolibarr/ # Dolibarr ERP/CRM
-│ ├── kustomization.yaml
-│ └── README.md
-│
-├── erp-next/ # ERPNext
-│ ├── kustomization.yaml
-│ └── deployment.yaml
-│
-├── prometheus-grafana-gitops/ # Monitoring stack
-│ ├── kustomization.yaml
-│ └── values.yaml
-│
-├── minio-velero-gitops/ # Backup infrastructure
-│ ├── kustomization.yaml
-│ └── deployment.yaml
-│
-├── argocd-applications.yaml # Root Argo CD Application
-└── README.md # This file
+#### gitops-homelab/
+#### ├── postgres/ # PostgreSQL database
+#### │ ├── kustomization.yaml # Kustomize configuration
+#### │ ├── deployment.yaml # StatefulSet deployment
+#### │ ├── service.yaml # ClusterIP service
+#### │ ├── secret.yaml # Encrypted secrets
+#### │ └── pvc.yaml # Persistent volume claim
+#### │
+#### ├── word-press/ # WordPress CMS
+#### │ ├── kustomization.yaml
+#### │ ├── wordpress-app.yaml # Argo CD Application
+#### │ └── values.yaml # Helm values override
+#### │
+#### ├── odoo-argocd/ # Odoo ERP
+#### │ ├── kustomization.yaml
+#### │ └── deployment.yaml
+#### │
+#### ├── nextcloud-gitops/ # Nextcloud storage
+#### │ ├── kustomization.yaml
+#### │ └── values.yaml
+#### │
+#### ├── snipeit-argocd/ # Snipe-IT asset management
+#### │ ├── kustomization.yaml
+#### │ └── deployment.yaml
+#### │
+#### ├── dolibarr/ # Dolibarr ERP/CRM
+#### │ ├── kustomization.yaml
+#### │ └── README.md
+#### │
+#### ├── erp-next/ # ERPNext
+#### │ ├── kustomization.yaml
+#### │ └── deployment.yaml
+#### │
+#### ├── prometheus-grafana-gitops/ # Monitoring stack
+#### │ ├── kustomization.yaml
+#### │ └── values.yaml
+#### │
+#### ├── minio-velero-gitops/ # Backup infrastructure
+#### │ ├── kustomization.yaml
+#### │ └── deployment.yaml
+#### │
+#### ├── argocd-applications.yaml # Root Argo CD Application
+#### └── README.md # This file
 
 text
 
@@ -83,9 +83,9 @@ text
 
 ### Prerequisites
 
-- Kubernetes cluster (1.28+)
-- Argo CD installed in `argocd` namespace
-- kubectl configured with cluster access
+#### - Kubernetes cluster (1.28+)
+#### - Argo CD installed in `argocd` namespace
+#### - kubectl configured with cluster access
 
 ### Deploy All Applications
 

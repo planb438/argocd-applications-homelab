@@ -6,19 +6,19 @@
 
 
 markdown
-# 🚦 GitOps Homelab - Argo CD Application Repository
+####  🚦 GitOps Homelab - Argo CD Application Repository
 
-## 📋 Overview
+####  📋 Overview
 
-A **GitOps-driven** repository containing Kubernetes application manifests for my homelab environment. All applications are deployed via Argo CD using a combination of Helm charts, Kustomize, and raw YAML manifests.
+#### A **GitOps-driven** repository containing Kubernetes application manifests for my homelab environment. All applications are deployed via Argo CD using a combination of Helm charts, #### Kustomize, and raw YAML manifests.
 
-### 🎯 Purpose
-- **Single source of truth** for all homelab applications
-- **Declarative application management** with Argo CD
-- **Version-controlled configurations** for disaster recovery
-- **Consistent deployment patterns** across PostgreSQL, WordPress, Odoo, Nextcloud, and more
+####  🎯 Purpose
+####  - **Single source of truth** for all homelab applications
+#### - **Declarative application management** with Argo CD
+#### - **Version-controlled configurations** for disaster recovery
+#### - **Consistent deployment patterns** across PostgreSQL, WordPress, Odoo, Nextcloud, and more
 
-### 📊 Applications Managed
+####  📊 Applications Managed
 
 #### | Application | Type | Deployment Method | Sync Status |
 #### |-------------|------|-------------------|--------------|
@@ -32,7 +32,7 @@ A **GitOps-driven** repository containing Kubernetes application manifests for m
 #### | MinIO + Velero | Backup | Kustomize | ✅ |
 #### | ERPNext | ERP System | Kustomize | ✅ |
 
-## 📁 Repository Structure
+####  📁 Repository Structure
 #### gitops-homelab/
 #### ├── postgres/ # PostgreSQL database
 #### │ ├── kustomization.yaml # Kustomize configuration
@@ -79,7 +79,7 @@ A **GitOps-driven** repository containing Kubernetes application manifests for m
 
 text
 
-## 🚀 Quick Start
+####  🚀 Quick Start
 
 ### Prerequisites
 
@@ -87,7 +87,7 @@ text
 #### - Argo CD installed in `argocd` namespace
 #### - kubectl configured with cluster access
 
-### Deploy All Applications
+####  Deploy All Applications
 
 ```bash
 # Apply the root Argo CD Application

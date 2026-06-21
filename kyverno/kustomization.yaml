@@ -1,5 +1,4 @@
 resources:
-- namespace.yaml
 - 00-kyverno-helm.yaml
 - 01-disallow-privileged.yaml
 - 02-require-labels.yaml

@@ -1,0 +1,7 @@
+resources:
+- namespace.yaml
+- 00-kyverno-helm.yaml
+- 01-disallow-privileged.yaml
+- 02-require-labels.yaml
+- 03-disallow-latest-tag.yaml
+- 04-require-readonly-rootfs.yaml

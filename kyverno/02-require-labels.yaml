@@ -1,0 +1,21 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-namespace-labels
+  annotations:
+    policies.kyverno.io/title: Require Namespace Labels
+    policies.kyverno.io/severity: low
+spec:
+  validationFailureAction: Enforce
+  rules:
+  - name: require-labels
+    match:
+      resources:
+        kinds:
+        - Namespace
+    validate:
+      message: "All namespaces must have an 'owner' label."
+      pattern:
+        metadata:
+          labels:
+            owner: "?*"

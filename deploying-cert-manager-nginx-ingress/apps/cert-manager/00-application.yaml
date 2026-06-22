@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://charts.jetstack.io
-    targetRevision: "1.15.3"  # <-- SPECIFIC VERSION
+    targetRevision: "1.15.5"  # <-- SPECIFIC VERSION
     chart: cert-manager
     helm:
       values: |

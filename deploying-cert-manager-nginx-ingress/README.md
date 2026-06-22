@@ -342,6 +342,6 @@
 #### GitOps for Applications	✅
 #### Full Argo CD Management	✅
 #### Infrastructure as Code	✅
-#### Your entire cluster is now managed via GitOps! 🚀
+#### Entire cluster is now managed via GitOps! 🚀
 
 #### Any changes to Ingress, Cert Manager, or applications are now done by updating Git and letting Argo CD sync automatically.

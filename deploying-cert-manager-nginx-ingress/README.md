@@ -345,3 +345,33 @@
 #### Entire cluster is now managed via GitOps! 🚀
 
 #### Any changes to Ingress, Cert Manager, or applications are now done by updating Git and letting Argo CD sync automatically.
+
+
+#### 📊 What's Now Deployed via Argo CD
+#### Application	Status	Method
+#### Ingress-Nginx	✅ Deployed	Helm via Argo CD
+#### Cert-Manager	✅ Deployed	Helm via Argo CD
+#### ClusterIssuers	✅ Deployed	YAML via Argo CD
+#### whoami	✅ Deployed	YAML via Argo CD
+#### 🔍 Verify Everything is Working
+#### bash
+# 1. Check all Argo CD apps
+    argocd app list
+
+# 2. Check individual app status
+    argocd app get ingress-nginx
+    argocd app get cert-manager
+    argocd app get cluster-issuers
+    argocd app get whoami
+
+# 3. Check actual pods
+     kubectl get pods -n ingress-nginx
+     kubectl get pods -n cert-manager
+     kubectl get pods -l app=whoami
+
+# 4. Check certificate
+    kubectl get certificate -A
+
+# 5. Test HTTPS
+    kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 8443:443 &
+    curl -k https://whoami.local:8443 --resolve whoami.local:8443:127.0.0.1

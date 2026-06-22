@@ -1,0 +1,4 @@
+resources:
+- 00-application.yaml
+- 00-cluster-issuers.yaml
+

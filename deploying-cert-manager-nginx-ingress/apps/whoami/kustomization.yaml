@@ -1,0 +1,6 @@
+resources:
+- 00-application.yaml
+- 00-deployment.yaml
+- 01-service.yaml
+- 02-ingress.yaml
+

@@ -14,7 +14,7 @@ spec:
   project: default
   source:
     repoURL: https://kyverno.github.io/kyverno/
-    targetRevision: latest
+    targetRevision: "3.8.1"
     chart: kyverno
     helm:
       values: |

@@ -1,5 +1,5 @@
 resources:
-- 00-kyverno-helm.yaml
+ #- 00-kyverno-helm.yaml  # <--- kubectl apply to install kyverno
 - 01-disallow-privileged.yaml
 - 02-require-labels.yaml
 - 03-disallow-latest-tag.yaml

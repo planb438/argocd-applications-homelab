@@ -349,31 +349,31 @@ bash
 #### 🚀 Quick Commands
 bash
 # Deploy Kyverno
-kubectl apply -f apps/kyverno/00-kyverno-helm.yaml
+    kubectl apply -f apps/kyverno/00-kyverno-helm.yaml
 argocd app sync kyverno --force
 
 # Check Kyverno status
-kubectl get pods -n kyverno
-kubectl get clusterpolicy
+    kubectl get pods -n kyverno
+    kubectl get clusterpolicy
 
 # Test policies
-kubectl apply -f apps/kyverno/05-test-pods.yaml
+    kubectl apply -f apps/kyverno/05-test-pods.yaml
 
 # Check policy reports
-kubectl get policyreport -A
+    kubectl get policyreport -A
 #### 🔐 Kyverno Policy Summary
-Policy	Purpose	Action
-disallow-privileged	Blocks privileged containers	Enforce
-require-namespace-labels	Requires owner label on namespaces	Enforce
-disallow-latest-tag	Blocks images with :latest tag	Enforce
-require-readonly-rootfs	Requires read-only root filesystem	Enforce
-🏆 What's Done
-Step	Status
-Kyverno Helm chart as Argo CD Application	✅
-Kyverno policies in Git	✅
-GitOps-driven deployment	✅
-Policy enforcement	✅
-Test verification	✅
-Kyverno is now fully GitOps-managed via Argo CD! 🚀
+#### Policy	Purpose	Action
+#### disallow-privileged	Blocks privileged containers	Enforce
+#### require-namespace-labels	Requires owner label on namespaces	Enforce
+#### disallow-latest-tag	Blocks images with :latest tag	Enforce
+#### require-readonly-rootfs	Requires read-only root filesystem	Enforce
+#### 🏆 What's Done
+#### Step	Status
+#### Kyverno Helm chart as Argo CD Application	✅
+#### Kyverno policies in Git	✅
+#### GitOps-driven deployment	✅
+#### Policy enforcement	✅
+#### Test verification	✅
+#### Kyverno is now fully GitOps-managed via Argo CD! 🚀
 
-This means every time you push changes to your Git repo, Argo CD will automatically apply them. No more manual kubectl apply for policies!
+#### This means every time you push changes to your Git repo, Argo CD will automatically apply them. No more manual kubectl apply for policies!

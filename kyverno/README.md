@@ -1,3 +1,9 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Ubuntu%2022.04%2B-lightgrey)](#)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-MicroK8s%20%7C%20kubeadm-blue)](#)
+[![YouTube](https://img.shields.io/badge/YouTube-TechShorts-red)](https://www.youtube.com/@adaribain)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Adari%20Bain-blue)](https://www.linkedin.com/in/adari-bain-298924152/)
+
 # 🎯 Deploy Kyverno via Argo CD (GitOps Approach)
 #### - now that Argo CD is your GitOps engine, everything should be deployed through it, including Kyverno, Cert Manager, Ingress, and all policies.
 
@@ -15,130 +21,130 @@
 #### Create 00-kyverno-helm.yaml:
 
 #### bash
-cat > 00-kyverno-helm.yaml << 'EOF'
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: kyverno
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: kyverno
-  namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  project: default
-  source:
-    repoURL: https://kyverno.github.io/kyverno/
-    targetRevision: latest
-    chart: kyverno
-    helm:
-      values: |
-        replicaCount: 2
-        admissionController:
-          replicaCount: 2
-        backgroundController:
-          enabled: true
-        cleanupController:
-          enabled: true
-        reportsController:
-          enabled: true
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: kyverno
-  syncPolicy:
-    automated:
-      selfHeal: true
-      prune: true
-    syncOptions:
-      - CreateNamespace=true
-EOF
+    cat > 00-kyverno-helm.yaml << 'EOF'
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: kyverno
+    ---
+    apiVersion: argoproj.io/v1alpha1
+    kind: Application
+    metadata:
+      name: kyverno
+      namespace: argocd
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      source:
+        repoURL: https://kyverno.github.io/kyverno/
+        targetRevision: latest
+        chart: kyverno
+        helm:
+          values: |
+            replicaCount: 2
+            admissionController:
+              replicaCount: 2
+            backgroundController:
+              enabled: true
+            cleanupController:
+              enabled: true
+            reportsController:
+              enabled: true
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: kyverno
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+          - CreateNamespace=true
+    EOF
 #### 1.2 Create Kyverno Policies
 #### Create 01-disallow-privileged.yaml:
 
-bash
-cat > 01-disallow-privileged.yaml << 'EOF'
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
-metadata:
-  name: disallow-privileged
-  annotations:
-    policies.kyverno.io/title: Disallow Privileged Containers
-    policies.kyverno.io/severity: medium
-    policies.kyverno.io/subject: Pod
-spec:
-  validationFailureAction: Enforce
-  background: true
-  rules:
-  - name: check-privileged
-    match:
-      resources:
-        kinds:
-        - Pod
-    validate:
-      message: "Privileged containers are not allowed!"
-      pattern:
-        spec:
-          containers:
-          - securityContext:
-              privileged: "false"
-EOF
+#### bash
+    cat > 01-disallow-privileged.yaml << 'EOF'
+    apiVersion: kyverno.io/v1
+    kind: ClusterPolicy
+    metadata:
+      name: disallow-privileged
+      annotations:
+        policies.kyverno.io/title: Disallow Privileged Containers
+        policies.kyverno.io/severity: medium
+        policies.kyverno.io/subject: Pod
+    spec:
+      validationFailureAction: Enforce
+      background: true
+      rules:
+      - name: check-privileged
+        match:
+          resources:
+            kinds:
+            - Pod
+        validate:
+          message: "Privileged containers are not allowed!"
+          pattern:
+            spec:
+              containers:
+              - securityContext:
+                  privileged: "false"
+    EOF
 #### Create 02-require-labels.yaml:
 
-bash
-cat > 02-require-labels.yaml << 'EOF'
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
-metadata:
-  name: require-namespace-labels
-  annotations:
-    policies.kyverno.io/title: Require Namespace Labels
-    policies.kyverno.io/severity: low
-spec:
-  validationFailureAction: Enforce
-  rules:
-  - name: require-labels
-    match:
-      resources:
-        kinds:
-        - Namespace
-    validate:
-      message: "All namespaces must have an 'owner' label."
-      pattern:
-        metadata:
-          labels:
-            owner: "?*"
-EOF
+#### bash
+    cat > 02-require-labels.yaml << 'EOF'
+    apiVersion: kyverno.io/v1
+    kind: ClusterPolicy
+    metadata:
+      name: require-namespace-labels
+      annotations:
+        policies.kyverno.io/title: Require Namespace Labels
+        policies.kyverno.io/severity: low
+    spec:
+      validationFailureAction: Enforce
+      rules:
+      - name: require-labels
+        match:
+          resources:
+            kinds:
+            - Namespace
+        validate:
+          message: "All namespaces must have an 'owner' label."
+          pattern:
+            metadata:
+              labels:
+                owner: "?*"
+    EOF
 #### Create 03-disallow-latest-tag.yaml:
 
-bash
-cat > 03-disallow-latest-tag.yaml << 'EOF'
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
-metadata:
-  name: disallow-latest-tag
-  annotations:
-    policies.kyverno.io/title: Disallow Latest Image Tag
-    policies.kyverno.io/severity: medium
-spec:
-  validationFailureAction: Enforce
-  background: true
-  rules:
-  - name: require-image-tag
-    match:
-      resources:
-        kinds:
-        - Pod
-    validate:
-      message: "Using 'latest' image tag is not allowed. Use a specific version."
-      pattern:
-        spec:
-          containers:
-          - image: "*:*"
-          - image: "!*:latest"
-EOF
+#### bash
+    cat > 03-disallow-latest-tag.yaml << 'EOF'
+    apiVersion: kyverno.io/v1
+    kind: ClusterPolicy
+    metadata:
+      name: disallow-latest-tag
+      annotations:
+        policies.kyverno.io/title: Disallow Latest Image Tag
+        policies.kyverno.io/severity: medium
+    spec:
+      validationFailureAction: Enforce
+      background: true
+      rules:
+      - name: require-image-tag
+        match:
+          resources:
+            kinds:
+            - Pod
+        validate:
+          message: "Using 'latest' image tag is not allowed. Use a specific version."
+          pattern:
+            spec:
+              containers:
+              - image: "*:*"
+              - image: "!*:latest"
+    EOF
 #### Create 04-require-readonly-rootfs.yaml:
 
 bash
@@ -216,48 +222,48 @@ cd /tmp/Argo-CD
 tree apps/kyverno/
 
 # Should show:
-# apps/kyverno/
-# ├── 00-kyverno-helm.yaml
-# ├── 01-disallow-privileged.yaml
-# ├── 02-require-labels.yaml
-# ├── 03-disallow-latest-tag.yaml
-# ├── 04-require-readonly-rootfs.yaml
-# └── 05-test-pods.yaml
+    apps/kyverno/
+    ├── 00-kyverno-helm.yaml
+    ├── 01-disallow-privileged.yaml
+    ├── 02-require-labels.yaml
+    ├── 03-disallow-latest-tag.yaml
+    ├── 04-require-readonly-rootfs.yaml
+    └── 05-test-pods.yaml
 
 # Commit and push
-git add .
-git commit -m "Add Kyverno with policies for GitOps deployment"
-git push
+    git add .
+    git commit -m "Add Kyverno with policies for GitOps deployment"
+    git push
 🚀 Step 3: Deploy Kyverno via Argo CD
 bash
 # Apply the Kyverno Application manifest
-kubectl apply -f apps/kyverno/00-kyverno-helm.yaml
+    kubectl apply -f apps/kyverno/00-kyverno-helm.yaml
 
 # Check Argo CD sync status
-argocd app list
-argocd app get kyverno
+    argocd app list
+    argocd app get kyverno
 
 # Wait for sync (may take 2-3 minutes)
-argocd app sync kyverno --force
+    argocd app sync kyverno --force
 
 # Check Kyverno pods
-kubectl get pods -n kyverno
+    kubectl get pods -n kyverno
 
 # Check policies
-kubectl get clusterpolicy
+    kubectl get clusterpolicy
 📊 Step 4: Verify Kyverno Policies
 bash
 # Apply test pods (to verify policies are working)
-kubectl apply -f apps/kyverno/05-test-pods.yaml
+    kubectl apply -f apps/kyverno/05-test-pods.yaml
 
 # Check if naughty pod was blocked
-kubectl get pods -n policy-test
+    kubectl get pods -n policy-test
 
 # Check Kyverno policy reports
-kubectl get policyreport -A
+    kubectl get policyreport -A
 
 # Check individual policy status
-kubectl describe clusterpolicy disallow-privileged
+    kubectl describe clusterpolicy disallow-privileged
 🔍 Step 5: Test Kyverno Policies
 bash
 # Test: Create a privileged pod (should be blocked)
@@ -308,33 +314,33 @@ EOF
 🧹 Step 6: Clean Up Test Resources
 bash
 # Delete test namespace
-kubectl delete namespace policy-test
+    kubectl delete namespace policy-test
 
 # Delete test pods (if any survived)
-kubectl delete pod test-privileged --ignore-not-found=true
-kubectl delete pod test-latest --ignore-not-found=true
-kubectl delete pod test-good --ignore-not-found=true
-📁 Final Git Repo Structure
-text
-Argo-CD/
-├── apps/
-│   ├── kyverno/
-│   │   ├── 00-kyverno-helm.yaml      # Kyverno Helm Application
-│   │   ├── 01-disallow-privileged.yaml
-│   │   ├── 02-require-labels.yaml
-│   │   ├── 03-disallow-latest-tag.yaml
-│   │   ├── 04-require-readonly-rootfs.yaml
-│   │   └── 05-test-pods.yaml
-│   ├── nextcloud/
-│   │   ├── 00-namespace.yaml
-│   │   ├── 01-postgres.yaml
-│   │   ├── 02-nextcloud.yaml
-│   │   └── 03-ingress.yaml
-│   └── nginx-test/
-│       ├── 00-deployment.yaml
-│       └── 01-service.yaml
-├── k8s-manifests/
-└── README.md
+    kubectl delete pod test-privileged --ignore-not-found=true
+    kubectl delete pod test-latest --ignore-not-found=true
+    kubectl delete pod test-good --ignore-not-found=true
+#### 📁 Final Git Repo Structure
+#### text
+    Argo-CD/
+    ├── apps/
+    │   ├── kyverno/
+    │   │   ├── 00-kyverno-helm.yaml      # Kyverno Helm Application
+    │   │   ├── 01-disallow-privileged.yaml
+    │   │   ├── 02-require-labels.yaml
+    │   │   ├── 03-disallow-latest-tag.yaml
+    │   │   ├── 04-require-readonly-rootfs.yaml
+    │   │   └── 05-test-pods.yaml
+    │   ├── nextcloud/
+    │   │   ├── 00-namespace.yaml
+    │   │   ├── 01-postgres.yaml
+    │   │   ├── 02-nextcloud.yaml
+    │   │   └── 03-ingress.yaml
+    │   └── nginx-test/
+    │       ├── 00-deployment.yaml
+    │       └── 01-service.yaml
+    ├── k8s-manifests/
+    └── README.md
 #### 📝 Argo CD App Creation Summary
 #### Application	Source	Namespace	Status
 #### Kyverno	Helm Chart (kyverno/kyverno)	kyverno	⏳ Deploying

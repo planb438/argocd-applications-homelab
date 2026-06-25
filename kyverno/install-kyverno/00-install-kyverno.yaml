@@ -1,3 +1,4 @@
+# kubectl apply -f00-install-kyverno.yaml
 apiVersion: v1
 kind: Namespace
 metadata:

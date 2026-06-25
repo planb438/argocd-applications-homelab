@@ -1,2 +1,2 @@
 resources:
-- 00-install-kyverno.yaml
+- 00-install-kyverno.yaml   # kubectl apply -f00-install-kyverno.yaml

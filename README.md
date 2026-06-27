@@ -6,9 +6,9 @@
 
 
 markdown
-#   🚦 GitOps - Argo CD Application Repository
+####   🚦 GitOps - Argo CD Application Repository
 
-####  📋 Overview
+#  📋 Overview
 
 #### A **GitOps-driven** repository containing Kubernetes application manifests for my homelab environment. All applications are deployed via Argo CD using a combination of Helm charts, #### Kustomize, and raw YAML manifests.
 
@@ -38,7 +38,7 @@ markdown
 
 ---
 
-####  📁 Repository Structure
+#  📁 Repository Structure
 #### gitops-homelab/
 #### ├── postgres/ # PostgreSQL database
 #### │ ├── kustomization.yaml # Kustomize configuration
@@ -174,29 +174,28 @@ yaml
 
 #### 🔧 Argo CD Configuration
 #### Root Application (argocd-applications.yaml)
-yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: gitops-homelab
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/planb438/git-ops
-    targetRevision: main
-    path: ./
-    directory:
-      recurse: true
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: argocd
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+    apiVersion: argoproj.io/v1alpha1
+    kind: Application
+    metadata:
+      name: gitops-homelab
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/planb438/git-ops
+        targetRevision: main
+        path: ./
+        directory:
+          recurse: true
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: argocd
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
 #### Sync Options
 #### Policy	Setting	Effect
 #### Automated Sync	prune: true	Delete resources not in Git
@@ -267,27 +266,25 @@ spec:
 
 yaml
 # Instead of Secret, use SealedSecret
-apiVersion: bitnami.com/v1alpha1
-kind: SealedSecret
-metadata:
-  name: postgres-secret
-spec:
-  encryptedData:
-    password: AgA...
+    apiVersion: bitnami.com/v1alpha1
+    kind: SealedSecret
+    metadata:
+      name: postgres-secret
+    spec:
+      encryptedData:
+        password: AgA...
 #### External Secrets Operator (with AWS Secrets Manager)
-
-yaml
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-spec:
-  secretStoreRef:
-    name: aws-secretsmanager
-  target:
-    name: postgres-secret
-  data:
-    - secretKey: password
-      remoteRef:
-        key: postgres-password
+    apiVersion: external-secrets.io/v1beta1
+    kind: ExternalSecret
+    spec:
+      secretStoreRef:
+        name: aws-secretsmanager
+      target:
+        name: postgres-secret
+      data:
+        - secretKey: password
+          remoteRef:
+            key: postgres-password
 #### Current Secret Status
 #### ⚠️ Warning: Your repository contains plaintext secrets in:
 
@@ -361,17 +358,17 @@ bash
     kubectl patch pvc postgres-pvc -n postgres -p '{"spec":{"resources":{"requests":{"storage":"20Gi"}}}}'
 #### 📝 Git Commit Convention
 #### text
-#### <type>(<scope>): <subject>
+     <type>(<scope>): <subject>
 
-#### Types:
-#### - feat: New application or feature
-#### - fix: Bug fix
-#### - docs: Documentation only
-#### - style: Code style changes
-#### - refactor: Code refactoring
-#### - perf: Performance improvement
-#### - test: Test updates
-#### - chore: Maintenance tasks
+     Types:
+     - feat: New application or feature
+     - fix: Bug fix
+     - docs: Documentation only
+     - style: Code style changes
+     - refactor: Code refactoring
+     - perf: Performance improvement
+     - test: Test updates
+     - chore: Maintenance tasks
 
 #### Example:
 #### feat(postgres): Add auto-report number generation
@@ -382,21 +379,21 @@ bash
 
 yaml
 # .github/workflows/argocd-sync.yaml
-name: Sync Argo CD Apps
+    name: Sync Argo CD Apps
 
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  sync:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Sync Argo CD
-        run: |
-          argocd app sync postgres --grpc-web
-          argocd app sync word-press --grpc-web
+    on:
+      push:
+        branches: [ main ]
+    
+    jobs:
+      sync:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+          - name: Sync Argo CD
+            run: |
+              argocd app sync postgres --grpc-web
+              argocd app sync word-press --grpc-web
 #### 📚 Additional Resources
 #### Argo CD Documentation
 
@@ -414,45 +411,8 @@ jobs:
 #### Argo CD Version: 2.10+
 #### Kubernetes: 1.28+
 
-text
 
-####  **Suggested Repository Name Changes**
-
-#### | Current | Suggestion | Why |
-#### |---------|------------|-----|
-#### | `git-ops` | `gitops-homelab` | More descriptive |
-#### | or | `argocd-apps` | Clear purpose |
-#### | or | `homelab-gitops` | Standard naming |
-
-#### **Critical Security Action Required**
-
-#### ⚠️ **Your repository contains exposed secrets!** 
-
-``bash
-####  Immediately rotate these passwords:
-####  - PostgreSQL credentials
-####  - WordPress database passwords
-####  - Nextcloud admin passwords
-####  - Odoo database credentials
-#### Rotate all secrets now:
-
-bash
-# Generate new passwords
-    openssl rand -base64 32
-
-# Update in your cluster
-    kubectl edit secret postgres-secret -n postgres
-
-# Update in sealed secrets (recommended)
-    kubectl create secret generic postgres-secret \
-      --from-literal=password=NEW_PASSWORD \
-      --dry-run=client -o yaml | kubeseal > postgres/sealed-secret.yaml
-
-
-
----
-
-#### 🤝 Contributing & Contact
+# 🤝 Contributing & Contact
 ---
 #### This portfolio is actively maintained. Feel free to:
 

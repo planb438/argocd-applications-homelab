@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: falco-monitoring
+  labels:
+    owner: "cloudkanata"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: falco-event-forwarder
+  namespace: falco-monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: falco-event-forwarder
+  template:
+    metadata:
+      labels:
+        app: falco-event-forwarder
+    spec:
+      containers:
+      - name: falcosidekick
+        image: falcosecurity/falcosidekick:latest
+        env:
+        - name: WEBHOOK_URL
+          value: "http://falco-webhook.falco-system.svc.cluster.local:2801/"
+        - name: SLACK_WEBHOOKURL
+          value: ""  # Add your Slack webhook if needed
+        - name: TEAMS_WEBHOOKURL
+          value: ""  # Add your Teams webhook if needed
+        - name: DATADOG_APIKEY
+          value: ""  # Add your Datadog API key if needed
+        ports:
+        - containerPort: 2801
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: falco-event-forwarder
+  namespace: falco-monitoring
+spec:
+  selector:
+    app: falco-event-forwarder
+  ports:
+  - port: 2801
+    targetPort: http
+    name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-falco-events
+  namespace: falco-monitoring
+spec:
+  podSelector:
+    matchLabels:
+      app: falco-event-forwarder
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: falco-system
+    ports:
+    - port: 2801
+      protocol: TCP
+  policyTypes:
+  - Ingress

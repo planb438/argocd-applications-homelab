@@ -1,0 +1,131 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: falco
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+  source:
+    repoURL: https://falcosecurity.github.io/charts
+    targetRevision: "3.6.1"  # Lock to stable version
+    chart: falco
+    helm:
+      values: |
+        # ============================================
+        # Global Settings
+        # ============================================
+        global:
+          registry: docker.io
+          repository: falcosecurity/falco
+          tag: latest
+          pullPolicy: IfNotPresent
+
+        # ============================================
+        # Falco Driver (eBPF mode for EC2 compatibility)
+        # ============================================
+        driver:
+          enabled: true
+          kind: ebpf
+          ebpf:
+            enabled: true
+            probePath: "/root/.falco/falco-bpf.o"
+
+        # ============================================
+        # Falco Configuration
+        # ============================================
+        falco:
+          jsonOutput: true
+          jsonIncludeOutputProperty: true
+          logLevel: info
+          priority: warning
+          rulesFile:
+            - /etc/falco/falco_rules.yaml
+            - /etc/falco/falco_rules.local.yaml
+            - /etc/falco/k8s_audit_rules.yaml
+            - /etc/falco/rules.d/
+          # Kubernetes audit events
+          k8sAuditEndpoint: "0.0.0.0:9765"
+          k8sAuditRules:
+            - /etc/falco/k8s_audit_rules.yaml
+
+          # ============================================
+          # Output Configuration
+          # ============================================
+          # stdout output
+          stdoutOutput:
+            enabled: true
+
+          # File output
+          fileOutput:
+            enabled: true
+            keepAlive: false
+            filename: "/var/log/falco_events.log"
+
+          # Webhook output (for Falcosidekick)
+          webhook:
+            enabled: true
+            address: 0.0.0.0
+            port: 2801
+            url: "http://falco-event-forwarder.falco-monitoring.svc.cluster.local:2801/"
+
+        # ============================================
+        # Resources
+        # ============================================
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+        # ============================================
+        # DaemonSet Configuration
+        # ============================================
+        daemonset:
+          updateStrategy:
+            type: RollingUpdate
+
+        # ============================================
+        # Node Selection
+        # ============================================
+        nodeSelector: {}
+        tolerations:
+          - key: node-role.kubernetes.io/control-plane
+            effect: NoSchedule
+          - key: node-role.kubernetes.io/master
+            effect: NoSchedule
+
+        # ============================================
+        # Falco Exporter (Prometheus metrics)
+        # ============================================
+        falco-exporter:
+          enabled: true
+          image:
+            repository: falcosecurity/falco-exporter
+            tag: latest
+          service:
+            port: 9376
+            type: ClusterIP
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: falco-system
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true

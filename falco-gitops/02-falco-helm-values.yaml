@@ -1,0 +1,76 @@
+# This file is referenced by the Argo CD Application
+# The actual values are in the helm.values block above
+# Use this as a standalone values.yaml if needed
+
+global:
+  registry: docker.io
+  repository: falcosecurity/falco
+  tag: latest
+  pullPolicy: IfNotPresent
+
+driver:
+  enabled: true
+  kind: ebpf
+  ebpf:
+    enabled: true
+    probePath: "/root/.falco/falco-bpf.o"
+
+falco:
+  jsonOutput: true
+  jsonIncludeOutputProperty: true
+  logLevel: info
+  priority: warning
+  rulesFile:
+    - /etc/falco/falco_rules.yaml
+    - /etc/falco/falco_rules.local.yaml
+    - /etc/falco/k8s_audit_rules.yaml
+    - /etc/falco/rules.d/
+  k8sAuditEndpoint: "0.0.0.0:9765"
+  k8sAuditRules:
+    - /etc/falco/k8s_audit_rules.yaml
+  stdoutOutput:
+    enabled: true
+  fileOutput:
+    enabled: true
+    keepAlive: false
+    filename: "/var/log/falco_events.log"
+  webhook:
+    enabled: true
+    address: 0.0.0.0
+    port: 2801
+    url: "http://falco-event-forwarder.falco-monitoring.svc.cluster.local:2801/"
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+daemonset:
+  updateStrategy:
+    type: RollingUpdate
+
+nodeSelector: {}
+tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    effect: NoSchedule
+  - key: node-role.kubernetes.io/master
+    effect: NoSchedule
+
+falco-exporter:
+  enabled: true
+  image:
+    repository: falcosecurity/falco-exporter
+    tag: latest
+  service:
+    port: 9376
+    type: ClusterIP
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"

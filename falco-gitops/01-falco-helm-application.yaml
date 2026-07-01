@@ -25,7 +25,7 @@ spec:
           pullPolicy: IfNotPresent
 
         # ============================================
-        # Falco Driver (eBPF mode for EC2 compatibility)
+        # Falco Driver (eBPF mode for EC2)
         # ============================================
         driver:
           enabled: true
@@ -47,19 +47,16 @@ spec:
             - /etc/falco/falco_rules.local.yaml
             - /etc/falco/k8s_audit_rules.yaml
             - /etc/falco/rules.d/
+
           # Kubernetes audit events
           k8sAuditEndpoint: "0.0.0.0:9765"
           k8sAuditRules:
             - /etc/falco/k8s_audit_rules.yaml
 
-          # ============================================
           # Output Configuration
-          # ============================================
-          # stdout output
           stdoutOutput:
             enabled: true
 
-          # File output
           fileOutput:
             enabled: true
             keepAlive: false
@@ -70,7 +67,7 @@ spec:
             enabled: true
             address: 0.0.0.0
             port: 2801
-            url: "http://falco-event-forwarder.falco-monitoring.svc.cluster.local:2801/"
+            url: "http://falco-webhook.falco-system.svc.cluster.local:2801/"
 
         # ============================================
         # Resources
@@ -119,6 +116,51 @@ spec:
               memory: "256Mi"
               cpu: "200m"
 
+        # ============================================
+        # Custom Rules
+        # ============================================
+        customRules:
+          falco_rules.local.yaml: |
+            - rule: Terminal shell in container
+              desc: A shell was used as the entrypoint/exec point into a container
+              condition: >
+                container.id != host and
+                proc.name in (bash, sh, zsh, dash)
+              output: >
+                Shell run in container (user=%user.name command=%proc.cmdline
+                container_id=%container.id container_name=%container.name
+                image=%container.image.repository:%container.image.tag)
+              priority: WARNING
+              tags: [container, shell, mitre_execution]
+
+            - rule: Write below binary dir
+              desc: an attempt to write to any file below a set of binary directories
+              condition: >
+                bin_dir and evt.dir = < and open_write and
+                not package_mgmt_procs and
+                not user_known_write_below_binary_dir_activities
+              output: >
+                File below a known binary directory opened for writing
+                (user=%user.name command=%proc.cmdline file=%fd.name
+                parent=%proc.pname container_id=%container.id
+                image=%container.image.repository)
+              priority: ERROR
+              tags: [filesystem, mitre_persistence, mitre_defense_evasion]
+
+            - rule: Crypto Miner Detection
+              desc: Detect cryptocurrency mining activity
+              condition: >
+                spawned_process and
+                (proc.name in (xmrig, cpuminer, ccminer, ethminer, minerd) or
+                proc.cmdline contains "cryptonight" or
+                proc.cmdline contains "stratum+tcp")
+              output: >
+                Possible crypto mining activity detected
+                (user=%user.name command=%proc.cmdline pid=%proc.pid
+                container_id=%container.id)
+              priority: CRITICAL
+              tags: [crypto, mining, mitre_execution]
+
   destination:
     server: https://kubernetes.default.svc
     namespace: falco-system
@@ -127,5 +169,5 @@ spec:
       selfHeal: true
       prune: true
     syncOptions:
-      - CreateNamespace=false
+      - CreateNamespace=true
       - ServerSideApply=true

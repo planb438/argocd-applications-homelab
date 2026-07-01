@@ -1,6 +1,6 @@
-# This file is referenced by the Argo CD Application
+# 02-falco-values.yaml
+# This is a standalone values file for reference
 # The actual values are in the helm.values block above
-# Use this as a standalone values.yaml if needed
 
 global:
   registry: docker.io
@@ -38,7 +38,7 @@ falco:
     enabled: true
     address: 0.0.0.0
     port: 2801
-    url: "http://falco-event-forwarder.falco-monitoring.svc.cluster.local:2801/"
+    url: "http://falco-webhook.falco-system.svc.cluster.local:2801/"
 
 resources:
   requests:
@@ -74,3 +74,17 @@ falco-exporter:
     limits:
       memory: "256Mi"
       cpu: "200m"
+
+customRules:
+  falco_rules.local.yaml: |
+    - rule: Terminal shell in container
+      desc: A shell was used as the entrypoint/exec point into a container
+      condition: >
+        container.id != host and
+        proc.name in (bash, sh, zsh, dash)
+      output: >
+        Shell run in container (user=%user.name command=%proc.cmdline
+        container_id=%container.id container_name=%container.name
+        image=%container.image.repository:%container.image.tag)
+      priority: WARNING
+      tags: [container, shell, mitre_execution]

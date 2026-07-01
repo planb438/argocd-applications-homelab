@@ -1,17 +1,10 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: falco-monitoring
-  labels:
-    owner: "cloudkanata"
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: falco-event-forwarder
   namespace: falco-monitoring
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   replicas: 1
   selector:
@@ -26,14 +19,14 @@ spec:
       - name: falcosidekick
         image: falcosecurity/falcosidekick:latest
         env:
-        - name: WEBHOOK_URL
-          value: "http://falco-webhook.falco-system.svc.cluster.local:2801/"
         - name: SLACK_WEBHOOKURL
           value: ""  # Add your Slack webhook if needed
         - name: TEAMS_WEBHOOKURL
           value: ""  # Add your Teams webhook if needed
         - name: DATADOG_APIKEY
           value: ""  # Add your Datadog API key if needed
+        - name: WEBHOOK_URL
+          value: ""  # Empty to disable webhook output
         ports:
         - containerPort: 2801
           name: http
@@ -69,23 +62,3 @@ spec:
   - port: 2801
     targetPort: http
     name: http
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-falco-events
-  namespace: falco-monitoring
-spec:
-  podSelector:
-    matchLabels:
-      app: falco-event-forwarder
-  ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: falco-system
-    ports:
-    - port: 2801
-      protocol: TCP
-  policyTypes:
-  - Ingress

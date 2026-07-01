@@ -4,8 +4,10 @@ kind: Kustomization
 resources:
   - 00-namespace.yaml
   - 01-falco-helm-application.yaml
-  - 03-falco-rules-config.yaml
-  - 04-falco-event-forwarder.yaml
-  - 05-webhook-service.yaml
-# 02-falco-helm-values.yaml is referenced by the Argo CD Application
+  - 03-falco-event-forwarder.yaml
+
+# 02-falco-values.yaml is referenced by the Argo CD Application
 # and not applied directly via kustomize
+
+# ConfigMap for custom rules (if not using helm values)
+# - 03-falco-rules-config.yaml

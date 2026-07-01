@@ -8,3 +8,14 @@ metadata:
     pod-security.kubernetes.io/warn: restricted
     owner: "cloudkanata"
     environment: "production"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: falco-monitoring
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+    owner: "cloudkanata"
+    environment: "production"

@@ -1,4 +1,3 @@
-
 apiVersion: v2
 name: monitoring-stack
 version: 1.0.0

@@ -10,4 +10,3 @@ kube-prometheus-stack:
     service:
       type: NodePort
       nodePort: 32001
-

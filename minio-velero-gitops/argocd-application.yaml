@@ -3,16 +3,12 @@ kind: Application
 metadata:
   name: minio-velero
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
-    repoURL: https://github.com/planb438/git-ops.git
-    targetRevision: main
-    path: minio-velero-gitops
-    directory:
-      recurse: true
+    repoURL: https://github.com/vmware-tanzu/velero.git
+    targetRevision: v1.13.0
+    path: config/crd/v1/bases
   destination:
     server: https://kubernetes.default.svc
     namespace: velero

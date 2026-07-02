@@ -129,6 +129,9 @@ sleep 20
 
 echo "📝 # 5. Check if it's working:"
 kubectl get pods -n argocd
+
+echo "📝 # 6. Wait for argocd pods to restart:"
+sleep 20
  
 echo "📝 # 6. # Configure Argo CD CLI:"
 NODE_PORT=$(kubectl get svc -n argocd argocd-server -o jsonpath='{.spec.ports[?(@.name=="http")].nodePort}') && \

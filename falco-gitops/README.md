@@ -8,174 +8,124 @@
 
 ## 📋 Overview
 
-#### Falco is a runtime security tool that monitors syscalls from the Linux kernel (via eBPF) and alerts when suspicious behavior occurs in your containers or host.
+#### Falco is a runtime security tool that monitors syscalls from the Linux kernel (via eBPF) and alerts when suspicious behavior occurs in your containers or host. This repository provides a **GitOps-managed** Falco deployment using **Argo CD**.
 
-#### This repository provides a **GitOps-managed** Falco deployment using Argo CD, including:
+## What Falco Detects
 
-#### - ✅ Falco DaemonSet with eBPF driver (EC2-optimized)
-#### - ✅ Custom security rules
-#### - ✅ Event forwarding via Falcosidekick
-#### - ✅ Prometheus metrics integration
-#### - ✅ Network Policy for event forwarding
+#### | Rule | Description | Priority |
+#### |------|-------------|----------|
+#### | **Terminal shell in container** | Someone enters a shell inside a pod | WARNING |
+#### | **Write below binary dir** | Modifying configs in /usr/bin, /etc | ERROR |
+#### | **Launch Suspicious Network Tool** | nmap, netcat, tcpdump running in container | WARNING |
+#### | **Crypto Miner Detection** | Cryptocurrency mining activity detected | CRITICAL |
+#### | **Read Sensitive File** | Accessing /etc/shadow, /proc/kcore | ERROR |
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Deploy via Argo CD
 
-### Prerequisites
-
-#### - Kubernetes cluster (1.28+)
-#### - Argo CD installed and configured
-#### - kubectl configured
-
-### Deploy Falco via Argo CD
+### Step 1: Apply the Application
 
 #### bash
-# 1. Clone this repository
-    git clone https://github.com/CloudKanata/falco-gitops.git
-    cd falco-gitops
-
-# 2. Apply the Argo CD Application
-    kubectl apply -f 01-falco-helm-application.yaml
-
-# 3. Sync via Argo CD
+    kubectl apply -f 01-falco-application.yaml
+#### Step 2: Sync
+#### bash
     argocd app sync falco --force
-
-#### Verify Installation
+#### Step 3: Verify
 #### bash
-# Check Falco pods are running
-    kubectl get pods -n falco-system
+    kubectl get pods -n falco
+#### Expected Output:
 
-# Check Falco logs
-    kubectl logs -n falco-system -l app.kubernetes.io/name=falco --tail=20
+#### text
+    NAME          READY   STATUS    RESTARTS   AGE
+    falco-xxxxx   2/2     Running   0          1m
+    falco-yyyyy   2/2     Running   0          1m
+    falco-zzzzz   2/2     Running   0          1m
 
-# Check event forwarder
-    kubectl get pods -n falco-monitoring
 # 🧪 Test Falco
 #### Trigger a Shell Alert
 #### bash
 # Run a test pod with a shell
     kubectl run test-shell --rm -it --image=alpine -- sh
 
-# Once inside, exit (Ctrl+D)
+# Exit the shell (Ctrl+D)
 #### Check the Alert
 #### bash
-# View Falco logs
-    kubectl logs -n falco-system -l app.kubernetes.io/name=falco --tail=50
+    kubectl logs -l app.kubernetes.io/name=falco -n falco -c falco | grep -i shell
+#### Expected Output:
 
-# You should see:
-# "Notice A shell was spawned in a container with an attached terminal"
-#### Test Custom Rules
+#### text
+#### Notice A shell was spawned in a container with an attached terminal
+
+# 📂 Repository Structure
+#### text
+     falco-gitops/
+     ├── README.md                          # This file
+     └── 01-falco-application.yaml          # Argo CD Application
+
+# 🔧 Troubleshooting
+#### Pods Stuck in Init/CrashLoopBackOff
 #### bash
-# Simulate a crypto miner (should trigger CRITICAL alert)
-    kubectl run test-miner --rm -it --image=alpine -- sh -c "echo 'stratum+tcp://xmr.pool.minergate.com:45560' > /tmp/miner-config.json"
+# Check driver logs
+    kubectl logs -n falco -l app.kubernetes.io/name=falco -c falco-driver-loader
+
+# If driver fails, try modern_ebpf
+#### Edit 01-falco-application.yaml:
+     driver:
+       kind: modern_ebpf
+#### No Alerts Being Generated
+#### bash
 
 # Check Falco logs
-    kubectl logs -n falco-system -l app.kubernetes.io/name=falco --tail=50 | grep -i crypto
+    kubectl logs -l app.kubernetes.io/name=falco -n falco -c falco --tail=50
 
-# 📊 What Falco Catches
-#### Rule	Description	Priority
-#### Terminal shell in container	Someone enters a shell inside a pod	WARNING
-#### Write below binary dir	Modifying configs in /usr/bin, /etc	ERROR
-#### Launch Suspicious Network Tool	nmap, netcat, tcpdump running in container	WARNING
-#### Crypto Miner Detection	Cryptocurrency mining activity detected	CRITICAL
-#### Read Sensitive File Untrusted	Accessing /etc/shadow, /proc/kcore	ERROR
-#### Inbound Connections to High Ports	Suspicious network access	WARNING
+# Verify rules are loaded
+    kubectl exec -n falco daemonset/falco -- cat /etc/falco/falco_rules.yaml
 
-# 🔧 Custom Rules
-#### Custom rules are defined in 03-falco-rules-config.yaml. To add or modify rules:
-
-#### Edit 03-falco-rules-config.yaml in Git repository
-
-#### Commit and push changes
-
-#### Argo CD will auto-sync the ConfigMap
-
-#### Restart Falco pods to pick up changes:
-
+#### Pods Not Starting Due to Resources
 #### bash
-    kubectl delete pods -n falco-system -l app.kubernetes.io/name=falco
 
-# 🔌 Event Forwarding
-#### Falco events are forwarded to falco-event-forwarder (Falcosidekick) which can send alerts to:
+# Reduce resource limits
+#### Edit 01-falco-application.yaml:
+     resources:
+      requests:
+         memory: "128Mi"
+         cpu: "50m"
+       limits:
+         memory: "256Mi"
+         cpu: "100m"
 
-#### Slack
-
-#### Microsoft Teams
-
-#### Datadog
-
-#### Webhook endpoints
-
-#### And more...
-
-#### Configure Slack Integration
-#### Edit 04-falco-event-forwarder.yaml:
+# 🔌 Integrations
+#### Slack Alerts
+#### Add to 01-falco-application.yaml:
 
 #### yaml
-    env:
-    - name: SLACK_WEBHOOKURL
-      value: "https://hooks.slack.com/services/your/webhook/url"
-
-# 📈 Monitoring
-#### Falco Exporter exposes Prometheus metrics at :9376.
-
-#### Prometheus Integration
-#### Add this to your Prometheus configuration:
+    falco:
+      webhook:
+        enabled: true
+        url: "https://hooks.slack.com/services/your/webhook"
+#### Prometheus Metrics
+#### Add to 01-falco-application.yaml:
 
 #### yaml
-    scrape_configs:
-    - job_name: 'falco-exporter'
-      kubernetes_sd_configs:
-      - role: pod
-        namespaces:
-          names:
-          - falco-system
-      relabel_configs:
-      - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
-        action: keep
-        regex: falco-exporter
-      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-        action: keep
-        regex: true
-      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
-        action: replace
-        target_label: __address__
-        regex: ([^:]+)(?::\d+)?;(\d+)
-        replacement: $1:$2
-
-#### Grafana Dashboard
-#### Import Falco dashboard from Grafana Labs:
-
-#### Dashboard ID: 12345 (Falco dashboard)
-
-#### Select Prometheus data source
-
-#### Import
-
+    falco-exporter:
+      enabled: true
 # 🧹 Cleanup
 #### bash
-# Delete Falco from Argo CD
-    kubectl delete -f 01-falco-helm-application.yaml
-
-# Or use Argo CD CLI
+# Delete from Argo CD
     argocd app delete falco
 
-# Clean up namespaces (if needed)
-    kubectl delete namespace falco-system
-    kubectl delete namespace falco-monitoring
+# Or
+    kubectl delete -f 01-falco-application.yaml
 
+# Delete namespace
+    kubectl delete namespace falco
 # 📚 Additional Resources
 #### Falco Documentation
 
 #### Falco Rules
 
-#### Falcosidekick
-
-#### CKS Runtime Security
-
-# 📄 License
-#### MIT License - Use freely for learning and production.
+#### eBPF Documentation
 
 # 👤 Author
 #### Adari Bain - CKS Certified Kubernetes Security Specialist
@@ -184,53 +134,42 @@
 
 #### LinkedIn
 
-# 🔄 What's Next
-#### After Falco is deployed, consider:
-
-#### Component	Purpose
-#### Slack/Teams Integration	Real-time alert notifications
-#### Prometheus/Grafana	Falco metrics visualization
-#### Kyverno Policies	Block malicious deployments before runtime
-#### Network Policies	Restrict traffic to/from Falco components
-#### Sealed Secrets	Secure webhook URLs in Git
+# 🏆 CKS Alignment
+#### CKS Domain	How Falco Helps
+#### Runtime Security	Monitors syscalls and detects attacks in real-time
+#### System Hardening	Detects privilege escalation attempts
+#### Supply Chain Security	Detects crypto miners and malicious processes
+#### Monitoring & Logging	Provides audit trail of suspicious activity
 #### Built with ☁️ for Production Kubernetes Security
 
-text
+#### text
+
+#### ---
+
+## 📁 File Structure
+#### falco-gitops/
+#### ├── README.md # Full documentation
+#### └── 01-falco-application.yaml # Working Argo CD Application
+
+#### text
 
 ---
 
-## 🚀 Deployment Commands Summary
+## 🚀 Quick Commands
 
 #### bash
-# Clone the repo
-    git clone https://github.com/CloudKanata/falco-gitops.git
-    cd falco-gitops
+# Deploy
+    kubectl apply -f 01-falco-application.yaml
 
-# Deploy via Argo CD
-    kubectl apply -f 01-falco-helm-application.yaml
-
-# Force sync
+# Sync
     argocd app sync falco --force
 
-# Verify
-    kubectl get pods -n falco-system
-    kubectl get pods -n falco-monitoring
+# Check
+    kubectl get pods -n falco
 
 # Test
     kubectl run test-shell --rm -it --image=alpine -- sh
-    kubectl logs -n falco-system -l app.kubernetes.io/name=falco --tail=20 | grep -i shell
 
-
-# 📁 Repository Structure
-
-    falco-gitops/
-    ├── README.md                          # This file
-    ├── 00-namespace.yaml                  # Falco namespace
-    ├── 01-falco-helm-application.yaml     # Argo CD Application (Helm)
-    ├── 02-falco-helm-values.yaml          # Helm values (reference)
-    ├── 03-falco-rules-config.yaml         # Custom Falco rules
-    ├── 04-falco-event-forwarder.yaml      # Falcosidekick + NetworkPolicy
-    └── kustomization.yaml                 # Kustomize resources
-
- #### Falco is now fully GitOps-managed via Argo CD! 🚀
-
+# View alerts
+    kubectl logs -l app.kubernetes.io/name=falco -n falco -c falco | grep -i shell
+####  Falco is fully GitOps-managed! 🚀

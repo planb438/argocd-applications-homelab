@@ -5,165 +5,72 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
     repoURL: https://falcosecurity.github.io/charts
-    targetRevision: "3.6.1"  # Lock to stable version
+    targetRevision: "*"  # Use latest stable
     chart: falco
     helm:
       values: |
         # ============================================
-        # Global Settings
-        # ============================================
-        global:
-          registry: docker.io
-          repository: falcosecurity/falco
-          tag: latest
-          pullPolicy: IfNotPresent
-
-        # ============================================
-        # Falco Driver (eBPF mode for EC2)
+        # MODERN EBPF - Uses modern_ebpf driver
         # ============================================
         driver:
+          kind: modern_ebpf
           enabled: true
-          kind: ebpf
-          ebpf:
-            enabled: true
-            probePath: "/root/.falco/falco-bpf.o"
-
+        
         # ============================================
         # Falco Configuration
         # ============================================
         falco:
           jsonOutput: true
-          jsonIncludeOutputProperty: true
           logLevel: info
           priority: warning
-          rulesFile:
-            - /etc/falco/falco_rules.yaml
-            - /etc/falco/falco_rules.local.yaml
-            - /etc/falco/k8s_audit_rules.yaml
-            - /etc/falco/rules.d/
-
-          # Kubernetes audit events
-          k8sAuditEndpoint: "0.0.0.0:9765"
-          k8sAuditRules:
-            - /etc/falco/k8s_audit_rules.yaml
-
-          # Output Configuration
           stdoutOutput:
             enabled: true
-
           fileOutput:
             enabled: true
             keepAlive: false
             filename: "/var/log/falco_events.log"
-
-          # Webhook output (for Falcosidekick)
-          webhook:
-            enabled: true
-            address: 0.0.0.0
-            port: 2801
-            url: "http://falco-webhook.falco-system.svc.cluster.local:2801/"
-
+        
         # ============================================
-        # Resources
+        # Resources (t3.medium optimized)
         # ============================================
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
+            memory: "256Mi"
+            cpu: "100m"
           limits:
-            memory: "1Gi"
-            cpu: "500m"
-
+            memory: "512Mi"
+            cpu: "200m"
+        
         # ============================================
-        # DaemonSet Configuration
+        # Disable webhook and exporter
+        # ============================================
+        webhook:
+          enabled: false
+        falco-exporter:
+          enabled: false
+        
+        # ============================================
+        # DaemonSet configuration
         # ============================================
         daemonset:
           updateStrategy:
             type: RollingUpdate
-
+        
         # ============================================
-        # Node Selection
+        # Tolerations to run on all nodes
         # ============================================
-        nodeSelector: {}
         tolerations:
           - key: node-role.kubernetes.io/control-plane
             effect: NoSchedule
           - key: node-role.kubernetes.io/master
             effect: NoSchedule
-
-        # ============================================
-        # Falco Exporter (Prometheus metrics)
-        # ============================================
-        falco-exporter:
-          enabled: true
-          image:
-            repository: falcosecurity/falco-exporter
-            tag: latest
-          service:
-            port: 9376
-            type: ClusterIP
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "100m"
-            limits:
-              memory: "256Mi"
-              cpu: "200m"
-
-        # ============================================
-        # Custom Rules
-        # ============================================
-        customRules:
-          falco_rules.local.yaml: |
-            - rule: Terminal shell in container
-              desc: A shell was used as the entrypoint/exec point into a container
-              condition: >
-                container.id != host and
-                proc.name in (bash, sh, zsh, dash)
-              output: >
-                Shell run in container (user=%user.name command=%proc.cmdline
-                container_id=%container.id container_name=%container.name
-                image=%container.image.repository:%container.image.tag)
-              priority: WARNING
-              tags: [container, shell, mitre_execution]
-
-            - rule: Write below binary dir
-              desc: an attempt to write to any file below a set of binary directories
-              condition: >
-                bin_dir and evt.dir = < and open_write and
-                not package_mgmt_procs and
-                not user_known_write_below_binary_dir_activities
-              output: >
-                File below a known binary directory opened for writing
-                (user=%user.name command=%proc.cmdline file=%fd.name
-                parent=%proc.pname container_id=%container.id
-                image=%container.image.repository)
-              priority: ERROR
-              tags: [filesystem, mitre_persistence, mitre_defense_evasion]
-
-            - rule: Crypto Miner Detection
-              desc: Detect cryptocurrency mining activity
-              condition: >
-                spawned_process and
-                (proc.name in (xmrig, cpuminer, ccminer, ethminer, minerd) or
-                proc.cmdline contains "cryptonight" or
-                proc.cmdline contains "stratum+tcp")
-              output: >
-                Possible crypto mining activity detected
-                (user=%user.name command=%proc.cmdline pid=%proc.pid
-                container_id=%container.id)
-              priority: CRITICAL
-              tags: [crypto, mining, mitre_execution]
-
   destination:
     server: https://kubernetes.default.svc
-    namespace: falco-system
+    namespace: falco
   syncPolicy:
     automated:
       selfHeal: true

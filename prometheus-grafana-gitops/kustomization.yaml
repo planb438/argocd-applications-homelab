@@ -1,3 +1,3 @@
 resources:
 - 00-namespace.yaml
-- 01-prometheus-application.yaml
+# - 01-prometheus-application.yaml DEPLOY VIA kubectl apply -f

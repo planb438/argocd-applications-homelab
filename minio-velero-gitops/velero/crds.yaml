@@ -1,0 +1,315 @@
+# velero/crds.yaml
+# All Velero CRDs
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: backups.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: Backup
+    plural: backups
+    singular: backup
+    shortNames:
+    - backup
+  scope: Cluster
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: backupstoragelocations.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: BackupStorageLocation
+    plural: backupstoragelocations
+    singular: backupstoragelocation
+    shortNames:
+    - bsl
+  scope: Cluster
+  versions:
+  - name: v1
+    served: true
+    storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: deletebackuprequests.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: DeleteBackupRequest
+    plural: deletebackuprequests
+    singular: deletebackuprequest
+    shortNames:
+    - dbr
+  scope: Cluster
+  versions:
+  - name: v1
+    served: true
+    storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: downloadrequests.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: DownloadRequest
+    plural: downloadrequests
+    singular: downloadrequest
+    shortNames:
+    - dr
+  scope: Cluster
+  versions:
+  - name: v1
+    served: true
+    storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: podvolumebackups.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: PodVolumeBackup
+    plural: podvolumebackups
+    singular: podvolumebackup
+    shortNames:
+    - pvb
+  scope: Cluster
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: podvolumerestores.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: PodVolumeRestore
+    plural: podvolumerestores
+    singular: podvolumerestore
+    shortNames:
+    - pvr
+  scope: Cluster
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: restores.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: Restore
+    plural: restores
+    singular: restore
+    shortNames:
+    - restore
+  scope: Cluster
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: schedules.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: Schedule
+    plural: schedules
+    singular: schedule
+    shortNames:
+    - schedule
+  scope: Cluster
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: serverstatusrequests.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: ServerStatusRequest
+    plural: serverstatusrequests
+    singular: serverstatusrequest
+    shortNames:
+    - ssr
+  scope: Cluster
+  versions:
+  - name: v1
+    served: true
+    storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: volumesnapshotlocations.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: VolumeSnapshotLocation
+    plural: volumesnapshotlocations
+    singular: volumesnapshotlocation
+    shortNames:
+    - vsl
+  scope: Cluster
+  versions:
+  - name: v1
+    served: true
+    storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: backuprepositories.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: BackupRepository
+    plural: backuprepositories
+    singular: backuprepository
+    shortNames:
+    - br
+  scope: Cluster
+  versions:
+  - name: v1
+    served: true
+    storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: datauploads.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: DataUpload
+    plural: datauploads
+    singular: dataupload
+    shortNames:
+    - du
+  scope: Cluster
+  versions:
+  - name: v2alpha1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: datadownloads.velero.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+spec:
+  group: velero.io
+  names:
+    kind: DataDownload
+    plural: datadownloads
+    singular: datadownload
+    shortNames:
+    - dd
+  scope: Cluster
+  versions:
+  - name: v2alpha1
+    served: true
+    storage: true
+    subresources:
+      status: {}

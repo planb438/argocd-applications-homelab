@@ -1,0 +1,73 @@
+# 02-velero-values.yaml
+# This file is referenced by the Argo CD Application
+
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.9.0
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+
+credentials:
+  useSecret: true
+  secretContents:
+    cloud: |
+      [default]
+      aws_access_key_id = minioadmin
+      aws_secret_access_key = minioadmin123
+
+configuration:
+  provider: aws
+  backupStorageLocation:
+    name: default
+    bucket: velero
+    config:
+      region: us-east-1
+      s3ForcePathStyle: "true"
+      s3Url: "http://minio.velero.svc.cluster.local:9000"
+  volumeSnapshotLocation:
+    enabled: false
+
+deployRestic: false
+metrics:
+  enabled: false
+
+serviceAccount:
+  server:
+    create: true
+    name: velero
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+
+rbac:
+  create: true
+
+backupStorageLocation:
+  - name: default
+    provider: aws
+    bucket: velero
+    config:
+      region: us-east-1
+      s3ForcePathStyle: "true"
+      s3Url: "http://minio.velero.svc.cluster.local:9000"
+    default: true
+
+volumeSnapshotLocation:
+  - name: default
+    provider: aws
+    config:
+      region: us-east-1
+
+nodeSelector: {}
+tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    effect: NoSchedule
+  - key: node-role.kubernetes.io/master
+    effect: NoSchedule

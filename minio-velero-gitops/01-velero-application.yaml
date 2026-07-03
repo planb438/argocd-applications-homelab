@@ -36,24 +36,34 @@ spec:
               aws_secret_access_key = kp/rMi8SD0q7udcV5ZyL1+lJufajNuYxio18Sdt6
 
         # ============================================
-        # Configuration
+        # Configuration - UPDATED FORMAT
         # ============================================
         configuration:
-          provider: aws
+          # REMOVED: provider (moved to each location)
+          # REMOVED: deployRestic (now deployNodeAgent)
+          
+          # backupStorageLocation is now a LIST (array)
           backupStorageLocation:
-            name: default
-            bucket: velero
-            config:
-              region: us-east-1
-              s3ForcePathStyle: "true"
-              s3Url: "http://minio.velero.svc.cluster.local:9000"
+            - name: default
+              provider: aws
+              bucket: velero
+              config:
+                region: us-east-1
+                s3ForcePathStyle: "true"
+                s3Url: "http://minio.velero.svc.cluster.local:9000"
+              default: true
+          
+          # volumeSnapshotLocation is now a LIST (array) - disabled
           volumeSnapshotLocation:
-            enabled: false
+            - name: default
+              provider: aws
+              config:
+                region: us-east-1
 
         # ============================================
-        # Disable Restic (we use CSI snapshots)
+        # Node Agent (formerly Restic)
         # ============================================
-        deployRestic: false
+        deployNodeAgent: false
 
         # ============================================
         # Metrics
@@ -85,28 +95,6 @@ spec:
         # ============================================
         rbac:
           create: true
-
-        # ============================================
-        # Backup Storage Location
-        # ============================================
-        backupStorageLocation:
-          - name: default
-            provider: aws
-            bucket: velero
-            config:
-              region: us-east-1
-              s3ForcePathStyle: "true"
-              s3Url: "http://minio.velero.svc.cluster.local:9000"
-            default: true
-
-        # ============================================
-        # Snapshot Location (disabled for MinIO)
-        # ============================================
-        volumeSnapshotLocation:
-          - name: default
-            provider: aws
-            config:
-              region: us-east-1
 
         # ============================================
         # Node Selection

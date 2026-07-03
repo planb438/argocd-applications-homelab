@@ -3,8 +3,6 @@ kind: Application
 metadata:
   name: velero
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
@@ -13,9 +11,6 @@ spec:
     chart: velero
     helm:
       values: |
-        # ============================================
-        # Init Container - AWS Plugin
-        # ============================================
         initContainers:
           - name: velero-plugin-for-aws
             image: velero/velero-plugin-for-aws:v1.9.0
@@ -24,9 +19,6 @@ spec:
               - mountPath: /target
                 name: plugins
 
-        # ============================================
-        # Credentials (MinIO)
-        # ============================================
         credentials:
           useSecret: true
           secretContents:
@@ -35,53 +27,31 @@ spec:
               aws_access_key_id = AKIAXFTRPC2CYBO7H5PH
               aws_secret_access_key = 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
 
-        # ============================================
-        # Configuration - UPDATED FORMAT
-        # ============================================
         configuration:
-          # REMOVED: provider (moved to each location)
-          # REMOVED: deployRestic (now deployNodeAgent)
-          
-          # backupStorageLocation is now a LIST (array)
           backupStorageLocation:
             - name: default
               provider: aws
-              bucket: velero
+              bucket: velero-backups
               config:
-                region: us-east-1
+                region: minio
                 s3ForcePathStyle: "true"
-                s3Url: "http://minio.velero.svc.cluster.local:9000"
+                s3Url: "http://minio.velero.svc:9000"
               default: true
-          
-          # volumeSnapshotLocation is now a LIST (array) - disabled
           volumeSnapshotLocation:
             - name: default
               provider: aws
               config:
-                region: us-east-1
+                region: minio
 
-        # ============================================
-        # Node Agent (formerly Restic)
-        # ============================================
         deployNodeAgent: false
-
-        # ============================================
-        # Metrics
-        # ============================================
         metrics:
           enabled: false
 
-        # ============================================
-        # Service Account
-        # ============================================
         serviceAccount:
           server:
             create: true
             name: velero
 
-        # ============================================
-        # Resources (t3.medium optimized)
-        # ============================================
         resources:
           requests:
             memory: "128Mi"
@@ -90,21 +60,8 @@ spec:
             memory: "256Mi"
             cpu: "200m"
 
-        # ============================================
-        # RBAC
-        # ============================================
         rbac:
           create: true
-
-        # ============================================
-        # Node Selection
-        # ============================================
-        nodeSelector: {}
-        tolerations:
-          - key: node-role.kubernetes.io/control-plane
-            effect: NoSchedule
-          - key: node-role.kubernetes.io/master
-            effect: NoSchedule
 
   destination:
     server: https://kubernetes.default.svc

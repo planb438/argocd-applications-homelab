@@ -32,8 +32,8 @@ spec:
           secretContents:
             cloud: |
               [default]
-              aws_access_key_id = minioadmin
-              aws_secret_access_key = minioadmin123
+              aws_access_key_id = AKIAXFTRPC2CYBO7H5PH
+              aws_secret_access_key = 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
 
         # ============================================
         # Configuration

@@ -1,6 +1,4 @@
 # 02-velero-values.yaml
-# This file is referenced by the Argo CD Application
-
 initContainers:
   - name: velero-plugin-for-aws
     image: velero/velero-plugin-for-aws:v1.9.0
@@ -18,18 +16,22 @@ credentials:
       aws_secret_access_key = kp/rMi8SD0q7udcV5ZyL1+lJufajNuYxio18Sdt6
 
 configuration:
-  provider: aws
   backupStorageLocation:
-    name: default
-    bucket: velero
-    config:
-      region: us-east-1
-      s3ForcePathStyle: "true"
-      s3Url: "http://minio.velero.svc.cluster.local:9000"
+    - name: default
+      provider: aws
+      bucket: velero
+      config:
+        region: us-east-1
+        s3ForcePathStyle: "true"
+        s3Url: "http://minio.velero.svc.cluster.local:9000"
+      default: true
   volumeSnapshotLocation:
-    enabled: false
+    - name: default
+      provider: aws
+      config:
+        region: us-east-1
 
-deployRestic: false
+deployNodeAgent: false
 metrics:
   enabled: false
 
@@ -48,22 +50,6 @@ resources:
 
 rbac:
   create: true
-
-backupStorageLocation:
-  - name: default
-    provider: aws
-    bucket: velero
-    config:
-      region: us-east-1
-      s3ForcePathStyle: "true"
-      s3Url: "http://minio.velero.svc.cluster.local:9000"
-    default: true
-
-volumeSnapshotLocation:
-  - name: default
-    provider: aws
-    config:
-      region: us-east-1
 
 nodeSelector: {}
 tolerations:

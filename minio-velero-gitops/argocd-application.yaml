@@ -28,7 +28,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/planb438/git-ops.git
+    repoURL: https://github.com/planb438/argocd-applications-homelab.git
     targetRevision: main
     path: minio-velero-gitops
   destination:

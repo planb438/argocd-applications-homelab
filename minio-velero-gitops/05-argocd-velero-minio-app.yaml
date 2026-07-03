@@ -1,18 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: minio-velero
+  name: velero-minio
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
-    repoURL: https://github.com/planb438/argocd-applications-homelab.git
+    repoURL: https://github.com/YOURUSER/YOURREPO.git
     targetRevision: main
-    path: minio-velero-gitops
-    directory:
-      recurse: true
+    path: velero-minio
   destination:
     server: https://kubernetes.default.svc
     namespace: velero
@@ -21,5 +17,5 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
-    - ServerSideApply=true
+      - CreateNamespace=true
+      - ServerSideApply=true

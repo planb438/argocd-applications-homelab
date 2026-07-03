@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/planb438/git-ops/minio-velero-gitops.git
+    repoURL: https://github.com/planb438/argocd-applications-homelab.git
     targetRevision: main
-    path: minio
+    path: minio-velero-gitops
   destination:
     server: https://kubernetes.default.svc
     namespace: velero

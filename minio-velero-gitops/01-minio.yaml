@@ -2,16 +2,12 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: velero
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: minio-pvc
   namespace: velero
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -24,8 +20,6 @@ kind: Deployment
 metadata:
   name: minio
   namespace: velero
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
 spec:
   replicas: 1
   selector:
@@ -37,71 +31,50 @@ spec:
         app: minio
     spec:
       containers:
-        - name: minio
-          image: minio/minio:latest
-          args:
-            - server
-            - /data
-            - --console-address
-            - ":9001"
-          env:
-            - name: MINIO_ROOT_USER
-              value: minioadmin
-            - name: MINIO_ROOT_PASSWORD
-              value: minioadmin123
-          ports:
-            - containerPort: 9000
-            - containerPort: 9001
-          volumeMounts:
-            - name: storage
-              mountPath: /data
-      volumes:
+      - name: minio
+        image: minio/minio
+        command:
+        - /bin/bash
+        - -c
+        args:
+        - minio server /data --console-address ":9001"
+        env:
+        - name: MINIO_ROOT_USER
+          value: minioadmin
+        - name: MINIO_ROOT_PASSWORD
+          value: minioadmin123
+        ports:
+        - containerPort: 9000
+          name: api
+        - containerPort: 9001
+          name: console
+        volumeMounts:
         - name: storage
-          persistentVolumeClaim:
-            claimName: minio-pvc
+          mountPath: /data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: minio-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: minio
   namespace: velero
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
 spec:
   type: NodePort
+  ports:
+  - port: 9000
+    targetPort: 9000
+    nodePort: 30900
+    name: api
+  - port: 9001
+    targetPort: 9001
+    nodePort: 30901
+    name: console
   selector:
     app: minio
-  ports:
-    - name: api
-      port: 9000
-      targetPort: 9000
-      nodePort: 30900
-    - name: console
-      port: 9001
-      targetPort: 9001
-      nodePort: 30901
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: create-velero-bucket
-  namespace: velero
-  annotations:
-    argocd.argoproj.io/sync-wave: "3"
-spec:
-  template:
-    spec:
-      restartPolicy: OnFailure
-      containers:
-        - name: mc
-          image: minio/mc
-          command:
-            - /bin/sh
-            - -c
-            - |
-              until mc alias set minio http://minio.velero.svc.cluster.local:9000 minioadmin minioadmin123; do
-                echo "waiting for minio..."
-                sleep 5
-              done
-              mc mb --ignore-existing minio/velero-backups
-              mc ls minio

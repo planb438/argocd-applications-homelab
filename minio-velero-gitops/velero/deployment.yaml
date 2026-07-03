@@ -113,7 +113,7 @@ data:
     spec:
       provider: aws
       objectStorage:
-        bucket: velero
+        bucket: velero-backups
       config:
         region: us-east-1
         s3ForcePathStyle: "true"

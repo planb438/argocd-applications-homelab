@@ -1,0 +1,130 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velero
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://vmware-tanzu.github.io/helm-charts
+    targetRevision: "6.2.0"
+    chart: velero
+    helm:
+      values: |
+        # ============================================
+        # Init Container - AWS Plugin
+        # ============================================
+        initContainers:
+          - name: velero-plugin-for-aws
+            image: velero/velero-plugin-for-aws:v1.9.0
+            imagePullPolicy: IfNotPresent
+            volumeMounts:
+              - mountPath: /target
+                name: plugins
+
+        # ============================================
+        # Credentials (MinIO)
+        # ============================================
+        credentials:
+          useSecret: true
+          secretContents:
+            cloud: |
+              [default]
+              aws_access_key_id = minioadmin
+              aws_secret_access_key = minioadmin123
+
+        # ============================================
+        # Configuration
+        # ============================================
+        configuration:
+          provider: aws
+          backupStorageLocation:
+            name: default
+            bucket: velero
+            config:
+              region: us-east-1
+              s3ForcePathStyle: "true"
+              s3Url: "http://minio.velero.svc.cluster.local:9000"
+          volumeSnapshotLocation:
+            enabled: false
+
+        # ============================================
+        # Disable Restic (we use CSI snapshots)
+        # ============================================
+        deployRestic: false
+
+        # ============================================
+        # Metrics
+        # ============================================
+        metrics:
+          enabled: false
+
+        # ============================================
+        # Service Account
+        # ============================================
+        serviceAccount:
+          server:
+            create: true
+            name: velero
+
+        # ============================================
+        # Resources (t3.medium optimized)
+        # ============================================
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+        # ============================================
+        # RBAC
+        # ============================================
+        rbac:
+          create: true
+
+        # ============================================
+        # Backup Storage Location
+        # ============================================
+        backupStorageLocation:
+          - name: default
+            provider: aws
+            bucket: velero
+            config:
+              region: us-east-1
+              s3ForcePathStyle: "true"
+              s3Url: "http://minio.velero.svc.cluster.local:9000"
+            default: true
+
+        # ============================================
+        # Snapshot Location (disabled for MinIO)
+        # ============================================
+        volumeSnapshotLocation:
+          - name: default
+            provider: aws
+            config:
+              region: us-east-1
+
+        # ============================================
+        # Node Selection
+        # ============================================
+        nodeSelector: {}
+        tolerations:
+          - key: node-role.kubernetes.io/control-plane
+            effect: NoSchedule
+          - key: node-role.kubernetes.io/master
+            effect: NoSchedule
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: velero
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

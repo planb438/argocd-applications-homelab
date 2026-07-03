@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: velero
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: velero
+  namespace: velero
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: velero
+  namespace: velero
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: velero
+  template:
+    metadata:
+      labels:
+        app: velero
+    spec:
+      serviceAccountName: velero
+      containers:
+      - name: velero
+        image: velero/velero:v1.13.0
+        command:
+        - /velero
+        args:
+        - server
+        env:
+        - name: VELERO_SCRAPE_INTERVAL
+          value: "30s"
+        - name: VELERO_METRICS_PORT
+          value: "8085"
+        - name: AWS_ACCESS_KEY_ID
+          value: minioadmin
+        - name: AWS_SECRET_ACCESS_KEY
+          value: minioadmin123
+        - name: AWS_REGION
+          value: us-east-1
+        - name: S3_URL
+          value: http://minio.velero.svc.cluster.local:9000
+        volumeMounts:
+        - name: plugins
+          mountPath: /plugins
+        - name: scratch
+          mountPath: /scratch
+        - name: certs
+          mountPath: /etc/ssl/certs
+        ports:
+        - containerPort: 8085
+          name: metrics
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: plugins
+        emptyDir: {}
+      - name: scratch
+        emptyDir: {}
+      - name: certs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: velero
+  namespace: velero
+spec:
+  selector:
+    app: velero
+  ports:
+  - port: 8085
+    targetPort: metrics
+    name: metrics
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: velero-config
+  namespace: velero
+data:
+  backupstoragelocation.yaml: |
+    apiVersion: velero.io/v1
+    kind: BackupStorageLocation
+    metadata:
+      name: default
+      namespace: velero
+    spec:
+      provider: aws
+      objectStorage:
+        bucket: velero
+      config:
+        region: us-east-1
+        s3ForcePathStyle: "true"
+        s3Url: http://minio.velero.svc.cluster.local:9000
+  volumesnapshotlocation.yaml: |
+    apiVersion: velero.io/v1
+    kind: VolumeSnapshotLocation
+    metadata:
+      name: default
+      namespace: velero
+    spec:
+      provider: aws
+      config:
+        region: us-east-1

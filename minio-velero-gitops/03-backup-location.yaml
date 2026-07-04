@@ -8,6 +8,9 @@ metadata:
 spec:
   provider: aws
   default: true
+  credential:
+    name: cloud-credentials
+    key: cloud
   objectStorage:
     bucket: velero-backups
   config:

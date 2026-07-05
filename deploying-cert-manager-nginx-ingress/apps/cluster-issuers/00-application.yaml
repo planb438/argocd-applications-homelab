@@ -8,9 +8,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/planb438/Argo-CD.git
+    repoURL: https://github.com/planb438/argocd-applications-homelab.git
     targetRevision: HEAD
-    path: apps/cluster-issuers
+    path: deploying-cert-manager-nginx-ingress/apps/cluster-issuers
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager

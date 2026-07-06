@@ -13,11 +13,6 @@ spec:
       - monitoring
       - wordpress
       - velero
-      - kyverno
-      - falco
-      - local-path-storage
-      - cert-manager
-      - ingress-nginx
     ttl: 720h0m0s
 ---
 apiVersion: velero.io/v1

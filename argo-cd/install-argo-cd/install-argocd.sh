@@ -128,7 +128,7 @@ echo "📝 # 4. Wait for restart:"
 sleep 20
 
 echo "📝 # 5. Check if it's working:"
-kubectl get pods -n argocd
+kubectl get pods -n argocd -o wide
 
 echo "📝 # 6. Wait for argocd pods to restart:"
 sleep 20

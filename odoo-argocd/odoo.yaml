@@ -22,7 +22,7 @@ spec:
             - containerPort: 8069
           env:
             - name: POSTGRES_HOST
-              value: "postgres"  # ← Must be "postgres", not "db"
+              value: "postgres"
             - name: POSTGRES_PORT
               value: "5432"
             - name: POSTGRES_USER
@@ -41,7 +41,7 @@ spec:
                   name: postgres-secret
                   key: POSTGRES_DB
           args:
-            - "--db_host=postgres"  # ← Must be "postgres"
+            - "--db_host=postgres"
             - "--db_port=5432"
             - "--db_user=odoo"
             - "--db_password=odoo123"

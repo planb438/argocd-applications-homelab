@@ -4,7 +4,7 @@ metadata:
   name: odoo
   namespace: odoo
 spec:
-  replicas: 1
+  replicas: 1  # Start with 1 replica for testing
   selector:
     matchLabels:
       app: odoo
@@ -18,25 +18,49 @@ spec:
           image: odoo:17
           ports:
             - containerPort: 8069
-
-          # 👇 ADD HERE
-          resources:
-            requests:
-              cpu: "250m"
-              memory: "512Mi"
-              ephemeral-storage: "2Gi"
-            limits:
-              cpu: "1"
-              memory: "1Gi"
-              ephemeral-storage: "4Gi"
-
           env:
-            - name: HOST
-              value: postgres
-            - name: USER
-              value: odoo
-            - name: PASSWORD
+            - name: POSTGRES_HOST
+              value: "postgres"
+            - name: POSTGRES_USER
+              value: "odoo"
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_PORT
+              value: "5432"
+          # Add initialization args
+          args:
+            - "--db_host=postgres"
+            - "--db_port=5432"
+            - "--db_user=odoo"
+            - "--db_password=odoo123"
+            - "--database=odoo"
+            - "-i"
+            - "base"
+            - "--without-demo=all"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8069
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8069
+            initialDelaySeconds: 30
+            periodSeconds: 5

@@ -8,6 +8,7 @@ spec:
   selector:
     app: odoo
   ports:
-    - port: 80
+    - port: 8069
       targetPort: 8069
       nodePort: 30069
+      name: odoo

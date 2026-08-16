@@ -6,6 +6,7 @@ metadata:
 spec:
   ports:
     - port: 5432
+      targetPort: 5432
   selector:
     app: postgres
 ---
@@ -31,6 +32,8 @@ spec:
           envFrom:
             - secretRef:
                 name: postgres-secret
+          ports:
+            - containerPort: 5432
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: data

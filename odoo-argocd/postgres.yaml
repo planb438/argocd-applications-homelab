@@ -3,10 +3,13 @@ kind: Service
 metadata:
   name: postgres
   namespace: odoo
+labels:
+  app: postgres
 spec:
   ports:
     - port: 5432
-      targetPort: 5432
+      name: postgres
+  clusterIP: None
   selector:
     app: postgres
 ---
@@ -29,21 +32,31 @@ spec:
       containers:
         - name: postgres
           image: postgres:15
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 5432
+              name: postgres
+
           envFrom:
             - secretRef:
                 name: postgres-secret
-          ports:
-            - containerPort: 5432
+
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: data
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+
+          # ✅ IMPORTANT RESOURCE LIMITS
           resources:
             requests:
               cpu: "250m"
               memory: "512Mi"
+              ephemeral-storage: "2Gi"
             limits:
               cpu: "1"
-              memory: "1Gi"
+              memory: "2Gi"
+              ephemeral-storage: "5Gi"
+
           livenessProbe:
             exec:
               command:
@@ -52,6 +65,7 @@ spec:
                 - odoo
             initialDelaySeconds: 30
             periodSeconds: 10
+
           readinessProbe:
             exec:
               command:
@@ -59,12 +73,13 @@ spec:
                 - -U
                 - odoo
             initialDelaySeconds: 5
-            periodSeconds: 5
-      volumeClaimTemplates:
-        - metadata:
-            name: data
-          spec:
-            accessModes: ["ReadWriteOnce"]
-            resources:
-              requests:
-                storage: 20Gi
+            periodSeconds: 10
+
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Gi

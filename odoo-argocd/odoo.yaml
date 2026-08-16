@@ -4,10 +4,12 @@ metadata:
   name: odoo
   namespace: odoo
 spec:
-  replicas: 1  # Start with 1 replica for testing
+  replicas: 1
   selector:
     matchLabels:
       app: odoo
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -20,9 +22,14 @@ spec:
             - containerPort: 8069
           env:
             - name: POSTGRES_HOST
-              value: "postgres"
+              value: "postgres"  # ← Must be "postgres", not "db"
+            - name: POSTGRES_PORT
+              value: "5432"
             - name: POSTGRES_USER
-              value: "odoo"
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -33,11 +40,8 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_DB
-            - name: POSTGRES_PORT
-              value: "5432"
-          # Add initialization args
           args:
-            - "--db_host=postgres"
+            - "--db_host=postgres"  # ← Must be "postgres"
             - "--db_port=5432"
             - "--db_user=odoo"
             - "--db_password=odoo123"

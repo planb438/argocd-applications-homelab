@@ -12,3 +12,16 @@ spec:
       targetPort: 8069
       nodePort: 30069
       name: odoo
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: odoo
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres

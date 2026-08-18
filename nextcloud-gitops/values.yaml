@@ -1,7 +1,7 @@
   # Your values.yaml should target the "nextcloud" subchart
 nextcloud:
   username: admin
-  password: "Adm!nP@ss123"
+  password: "changeme"
 
   service:
     type: NodePort

@@ -9,17 +9,10 @@ resources:
   - dolibarr.yaml
   - service.yaml
 
-images:
-  - name: mariadb
-    newTag: "10.11"
-  - name: tuxgasy/dolibarr
-    newTag: "latest"
-
-# Optional: Add common labels
-commonLabels:
-  managed-by: argocd
-  environment: dev
-
-# Optional: Add annotations
-commonAnnotations:
-  argocd.argoproj.io/sync-options: PruneLast=true
+# ✅ Replace deprecated 'commonLabels' with 'labels'
+labels:
+  - pairs:
+      managed-by: argocd
+      environment: dev
+    includeSelectors: false
+    includeTemplates: false

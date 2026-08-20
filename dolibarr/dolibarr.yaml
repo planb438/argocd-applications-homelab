@@ -1,3 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dolibarr
+  namespace: dolibarr
+  labels:
+    app: dolibarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dolibarr
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dolibarr
+    spec:
+      containers:
+        - name: dolibarr
+          image: tuxgasy/dolibarr:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: DOLI_DB_HOST
+              value: "mysql"
+            - name: DOLI_DB_NAME
+              value: "dolibarr"
+            - name: DOLI_DB_USER
+              value: "dolibarr"
+            - name: DOLI_DB_PASSWORD
+              value: "dolipass"
+          volumeMounts:
+            - name: dolibarr-data
+              mountPath: /var/www/documents
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 5
+      volumes:
+        - name: dolibarr-data
+          persistentVolumeClaim:
+            claimName: dolibarr-pvc
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -8,64 +68,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dolibarr
-  namespace: dolibarr
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dolibarr
-  template:
-    metadata:
-      labels:
-        app: dolibarr
-    spec:
-      containers:
-        - name: dolibarr
-          image: tuxgasy/dolibarr:latest
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "100m"
-              ephemeral-storage: "1Gi"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-              ephemeral-storage: "2Gi"
-          env:
-            - name: DOLI_DB_HOST
-              value: mysql
-            - name: DOLI_DB_NAME
-              value: dolibarr
-            - name: DOLI_DB_USER
-              value: dolibarr
-            - name: DOLI_DB_PASSWORD
-              value: dolipass
-          ports:
-            - containerPort: 80
-          volumeMounts:
-            - name: dolidata
-              mountPath: /var/www/documents
-      volumes:
-        - name: dolidata
-          persistentVolumeClaim:
-            claimName: dolibarr-pvc
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: dolibarr
-  namespace: dolibarr
-spec:
-  type: NodePort
-  selector:
-    app: dolibarr
-  ports:
-    - port: 80
-      targetPort: 80
-      nodePort: 30081
+      storage: 10Gi

@@ -1,4 +1,84 @@
 apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: dolibarr
+  labels:
+    app: mysql
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    app: mysql
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: dolibarr
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mariadb:10.11
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - secretRef:
+                name: mysql-secret
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "300m"
+              memory: "512Mi"
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+                - -u
+                - root
+                - -p$MYSQL_ROOT_PASSWORD
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+                - -u
+                - root
+                - -p$MYSQL_ROOT_PASSWORD
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql-pvc
@@ -8,65 +88,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: mysql-secret
-  namespace: dolibarr
-type: Opaque
-stringData:
-  MYSQL_ROOT_PASSWORD: rootpass
-  MYSQL_DATABASE: dolibarr
-  MYSQL_USER: dolibarr
-  MYSQL_PASSWORD: dolipass
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mysql
-  namespace: dolibarr
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mysql
-  template:
-    metadata:
-      labels:
-        app: mysql
-    spec:
-      containers:
-        - name: mysql
-          image: mysql:8
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "100m"
-              ephemeral-storage: "1Gi"
-            limits:
-              memory: "512Mi"
-              cpu: "300m"
-              ephemeral-storage: "2Gi"
-          envFrom:
-            - secretRef:
-                name: mysql-secret
-          volumeMounts:
-            - name: data
-              mountPath: /var/lib/mysql
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: mysql-pvc
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mysql
-  namespace: dolibarr
-spec:
-  ports:
-    - port: 3306
-  selector:
-    app: mysql
+      storage: 20Gi

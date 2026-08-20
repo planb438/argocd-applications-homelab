@@ -11,6 +11,15 @@ resources:
 
 images:
   - name: mariadb
-    newTag: 10.11
+    newTag: "10.11"
   - name: tuxgasy/dolibarr
-    newTag: latest
+    newTag: "latest"
+
+# Optional: Add common labels
+commonLabels:
+  managed-by: argocd
+  environment: dev
+
+# Optional: Add annotations
+commonAnnotations:
+  argocd.argoproj.io/sync-options: PruneLast=true

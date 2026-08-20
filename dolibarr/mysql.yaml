@@ -4,35 +4,35 @@ metadata:
   name: mysql
   namespace: dolibarr
   labels:
-    app: mysql
+    app: mariadb
 spec:
   ports:
     - port: 3306
       targetPort: 3306
   selector:
-    app: mysql
+    app: mariadb
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: mariadb
   namespace: dolibarr
   labels:
-    app: mysql
+    app: mariadb
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysql
+      app: mariadb
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: mysql
+        app: mariadb
     spec:
       containers:
-        - name: mysql
+        - name: mariadb
           image: mariadb:10.11
           ports:
             - containerPort: 3306

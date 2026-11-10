@@ -5,97 +5,96 @@
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Adari%20Bain-blue)](https://www.linkedin.com/in/adari-bain-298924152/)
 
 
-markdown
-####   🚦 GitOps - Argo CD Application Repository
+# 🚦 GitOps - Argo CD Application Repository
 
 #  📋 Overview
 
-#### A **GitOps-driven** repository containing Kubernetes application manifests for my homelab environment. All applications are deployed via Argo CD using a combination of Helm charts, #### Kustomize, and raw YAML manifests.
+A **GitOps-driven** repository containing Kubernetes application manifests for my homelab environment. All applications are deployed via Argo CD using a combination of Helm charts, Kustomize, and raw YAML manifests.
 
 ---
 
 #   🎯 Purpose
-####  - **Single source of truth** for all homelab applications
-#### - **Declarative application management** with Argo CD
-#### - **Version-controlled configurations** for disaster recovery
-#### - **Consistent deployment patterns** across PostgreSQL, WordPress, Odoo, Nextcloud, and more
+- **Single source of truth** for all homelab applications
+- **Declarative application management** with Argo CD
+- **Version-controlled configurations** for disaster recovery
+- **Consistent deployment patterns** across PostgreSQL, WordPress, Odoo, Nextcloud, and more
 
 ---
 
 #   📊 Applications Managed
 
-####  | Application | Type | Deployment Method | Sync Status |
-#### |-------------|------|-------------------|--------------|
-#### | PostgreSQL | Database | Helm + Kustomize | ✅ |
-#### | WordPress | CMS | Helm + Kustomize | ✅ |
-#### | Odoo | ERP | Kustomize | ✅ |
-#### | Nextcloud | Cloud Storage | Helm + Kustomize | ✅ |
-#### | Snipe-IT | Asset Management | Kustomize | ✅ |
-#### | Dolibarr | ERP/CRM | Kustomize | ✅ |
-#### | Prometheus + Grafana | Monitoring | Helm + Kustomize | ✅ |
-#### | MinIO + Velero | Backup | Kustomize | ✅ |
-#### | ERPNext | ERP System | Kustomize | ✅ |
+| Application | Type | Deployment Method | Sync Status |
+|-------------|------|-------------------|--------------|
+| PostgreSQL | Database | Helm + Kustomize | ✅ |
+| WordPress | CMS | Helm + Kustomize | ✅ |
+| Odoo | ERP | Kustomize | ✅ |
+| Nextcloud | Cloud Storage | Helm + Kustomize | ✅ |
+| Snipe-IT | Asset Management | Kustomize | ✅ |
+| Dolibarr | ERP/CRM | Kustomize | ✅ |
+| Prometheus + Grafana | Monitoring | Helm + Kustomize | ✅ |
+| MinIO + Velero | Backup | Kustomize | ✅ |
+| ERPNext | ERP System | Kustomize | ✅ |
 
 ---
 
 #  📁 Repository Structure
-#### gitops-homelab/
-#### ├── postgres/ # PostgreSQL database
-#### │ ├── kustomization.yaml # Kustomize configuration
-#### │ ├── deployment.yaml # StatefulSet deployment
-#### │ ├── service.yaml # ClusterIP service
-#### │ ├── secret.yaml # Encrypted secrets
-#### │ └── pvc.yaml # Persistent volume claim
-#### │
-#### ├── word-press/ # WordPress CMS
-#### │ ├── kustomization.yaml
-#### │ ├── wordpress-app.yaml # Argo CD Application
-#### │ └── values.yaml # Helm values override
-#### │
-#### ├── odoo-argocd/ # Odoo ERP
-#### │ ├── kustomization.yaml
-#### │ └── deployment.yaml
-#### │
-#### ├── nextcloud-gitops/ # Nextcloud storage
-#### │ ├── kustomization.yaml
-#### │ └── values.yaml
-#### │
-#### ├── snipeit-argocd/ # Snipe-IT asset management
-#### │ ├── kustomization.yaml
-#### │ └── deployment.yaml
-#### │
-#### ├── dolibarr/ # Dolibarr ERP/CRM
-#### │ ├── kustomization.yaml
-#### │ └── README.md
-#### │
-#### ├── erp-next/ # ERPNext
-#### │ ├── kustomization.yaml
-#### │ └── deployment.yaml
-#### │
-#### ├── prometheus-grafana-gitops/ # Monitoring stack
-#### │ ├── kustomization.yaml
-#### │ └── values.yaml
-#### │
-#### ├── minio-velero-gitops/ # Backup infrastructure
-#### │ ├── kustomization.yaml
-#### │ └── deployment.yaml
-#### │
-#### ├── argocd-applications.yaml # Root Argo CD Application
-#### └── README.md # This file
+gitops-homelab/
+```text
+├── postgres/ # PostgreSQL database
+│ ├── kustomization.yaml # Kustomize configuration
+│ ├── deployment.yaml # StatefulSet deployment
+│ ├── service.yaml # ClusterIP service
+│ ├── secret.yaml # Encrypted secrets
+│ └── pvc.yaml # Persistent volume claim
+│
+├── word-press/ # WordPress CMS
+│ ├── kustomization.yaml
+│ ├── wordpress-app.yaml # Argo CD Application
+│ └── values.yaml # Helm values override
+│
+├── odoo-argocd/ # Odoo ERP
+│ ├── kustomization.yaml
+│ └── deployment.yaml
+│
+├── nextcloud-gitops/ # Nextcloud storage
+│ ├── kustomization.yaml
+│ └── values.yaml
+│
+├── snipeit-argocd/ # Snipe-IT asset management
+│ ├── kustomization.yaml
+│ └── deployment.yaml
+│
+├── dolibarr/ # Dolibarr ERP/CRM
+│ ├── kustomization.yaml
+│ └── README.md
+│
+├── erp-next/ # ERPNext
+│ ├── kustomization.yaml
+│ └── deployment.yaml
+│
+├── prometheus-grafana-gitops/ # Monitoring stack
+│ ├── kustomization.yaml
+│ └── values.yaml
+│
+├── minio-velero-gitops/ # Backup infrastructure
+│ ├── kustomization.yaml
+│ └── deployment.yaml
+│
+├── argocd-applications.yaml # Root Argo CD Application
+└── README.md # This file
+```
 
-text
-
-####  🚀 Quick Start
+🚀 Quick Start
 
 #  Prerequisites
 
-#### - Kubernetes cluster (1.28+)
-#### - Argo CD installed in `argocd` namespace
-#### - kubectl configured with cluster access
+- Kubernetes cluster (1.28+)
+- Argo CD installed in `argocd` namespace
+- kubectl configured with cluster access
 
-####  Deploy All Applications
+Deploy All Applications
 
-####  bash
+```bash
 # Apply the root Argo CD Application
     kubectl apply -f argocd-applications.yaml
 
@@ -103,8 +102,10 @@ text
     argocd app sync postgres
         argocd app sync word-press
     argocd app sync nextcloud-gitops
-#### Deploy Single Application
-bash
+```
+
+Deploy Single Application
+```bash
 # Example: Deploy PostgreSQL
     kubectl apply -f postgres/kustomization.yaml
 
@@ -115,65 +116,71 @@ bash
       --dest-namespace postgres \
       --dest-server https://kubernetes.default.svc \
       --sync-policy automated
-#### 📝 Application Configuration Guide
-#### 1. PostgreSQL Database
-#### Namespace: postgres
-#### Deployment Method: Kustomize + Raw YAML
+```
 
-yaml
+📝 Application Configuration Guide
+1. PostgreSQL Database
+Namespace: postgres
+Deployment Method: Kustomize + Raw YAML
+
+```yaml
 # PostgreSQL configuration
     Storage: 10Gi (PVC)
     Port: 5432
-#### Credentials: Managed via Kubernetes Secrets
-#### Manual entry features:
+Credentials: Managed via Kubernetes Secrets
+```
 
-#### Auto-generated report numbers
+Manual entry features:
 
-#### Helper tables for incident types
+Auto-generated report numbers
 
-#### Validation constraints
+Helper tables for incident types
 
-#### Audit logging
+Validation constraints
 
-#### 2. WordPress CMS
-#### Namespace: wordpress
-#### Deployment Method: Helm + Kustomize
+Audit logging
 
-#### bash
+2. WordPress CMS
+Namespace: wordpress
+Deployment Method: Helm + Kustomize
+
+```bash
 # Customize values
     cd word-press
     kubectl edit kustomization.yaml
 # Update repoURL, targetRevision as needed
-#### 3. Odoo ERP
-#### Namespace: odoo
-#### Deployment Method: Kustomize
+```
 
-#### 4. Nextcloud Storage
-#### Namespace: nextcloud
-#### Deployment Method: Helm + Kustomize
+3. Odoo ERP
+Namespace: odoo
+Deployment Method: Kustomize
 
-#### 5. Snipe-IT Asset Management
-#### Namespace: snipeit
-#### Deployment Method: Kustomize
+4. Nextcloud Storage
+Namespace: nextcloud
+Deployment Method: Helm + Kustomize
 
-#### 6. Dolibarr ERP/CRM
-#### Namespace: dolibarr
-#### Deployment Method: Kustomize
+5. Snipe-IT Asset Management
+Namespace: snipeit
+Deployment Method: Kustomize
 
-#### 7. Prometheus + Grafana Monitoring
-#### Namespace: monitoring
-#### Deployment Method: Helm + Kustomize
+6. Dolibarr ERP/CRM
+Namespace: dolibarr
+Deployment Method: Kustomize
 
-#### 8. MinIO + Velero Backup
-#### Namespace: velero
-#### Deployment Method: Kustomize
+7. Prometheus + Grafana Monitoring
+Namespace: monitoring
+Deployment Method: Helm + Kustomize
 
-#### 9. ERPNext
-#### Namespace: erpnext
-#### Deployment Method: Kustomize
+8. MinIO + Velero Backup
+Namespace: velero
+Deployment Method: Kustomize
 
-#### 🔧 Argo CD Configuration
-#### Root Application (argocd-applications.yaml)
+9. ERPNext
+Namespace: erpnext
+Deployment Method: Kustomize
+
+🔧 Argo CD Configuration
+Root Application (argocd-applications.yaml)
     apiVersion: argoproj.io/v1alpha1
     kind: Application
     metadata:
@@ -196,14 +203,14 @@ yaml
           selfHeal: true
         syncOptions:
           - CreateNamespace=true
-#### Sync Options
-#### Policy	Setting	Effect
-#### Automated Sync	prune: true	Delete resources not in Git
-#### Self Heal	selfHeal: true	Auto-correct drift
-#### Create Namespace	CreateNamespace: true	Auto-create app namespaces
-#### 🛠️ Common Operations
-#### Update an Application
-#### bash
+Sync Options
+Policy	Setting	Effect
+Automated Sync	prune: true	Delete resources not in Git
+Self Heal	selfHeal: true	Auto-correct drift
+Create Namespace	CreateNamespace: true	Auto-create app namespaces
+🛠️ Common Operations
+Update an Application
+```bash
 # 1. Edit the application configuration
     cd postgres
     vi deployment.yaml
@@ -216,15 +223,18 @@ yaml
 # 3. Argo CD auto-syncs (if automated sync enabled)
 # Or manually sync:
     argocd app sync postgres
-#### Rollback to Previous Version
-#### bash
+```
+
+Rollback to Previous Version
+```bash
 # Using Argo CD UI
 # Applications → postgres → HISTORY AND ROLLBACK
+```
 
 # Using CLI
     argocd app rollback postgres <revision-id>
-#### Add a New Application
-#### bash
+Add a New Application
+```bash
 # 1. Create application directory
     mkdir new-app
 
@@ -258,13 +268,15 @@ yaml
     git add new-app/
     git commit -m "Add new-app"
     git push
-#### 🔐 Security Best Practices
-#### Secrets Management
-#### ⚠️ Never commit raw secrets to Git! Use:
+```
 
-#### Sealed Secrets (Bitnami)
+🔐 Security Best Practices
+Secrets Management
+⚠️ Never commit raw secrets to Git! Use:
 
-yaml
+Sealed Secrets (Bitnami)
+
+```yaml
 # Instead of Secret, use SealedSecret
     apiVersion: bitnami.com/v1alpha1
     kind: SealedSecret
@@ -273,7 +285,9 @@ yaml
     spec:
       encryptedData:
         password: AgA...
-#### External Secrets Operator (with AWS Secrets Manager)
+```
+
+External Secrets Operator (with AWS Secrets Manager)
     apiVersion: external-secrets.io/v1beta1
     kind: ExternalSecret
     spec:
@@ -285,18 +299,18 @@ yaml
         - secretKey: password
           remoteRef:
             key: postgres-password
-#### Current Secret Status
-#### ⚠️ Warning: Your repository contains plaintext secrets in:
+Current Secret Status
+⚠️ Warning: Your repository contains plaintext secrets in:
 
-#### postgres/secret.yaml
+postgres/secret.yaml
 
-#### word-press/values.yaml
+word-press/values.yaml
 
-#### nextcloud-gitops/values.yaml
+nextcloud-gitops/values.yaml
 
-#### Fix immediately:
+Fix immediately:
 
-bash
+```bash
 # Remove secrets from Git history
     git filter-branch --force --index-filter \
       "git rm --cached --ignore-unmatch **/secret.yaml **/values.yaml" \
@@ -310,9 +324,11 @@ bash
 # Use Sealed Secrets instead
     kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/latest/download/controller.yaml
     kubectl create secret generic mysecret --dry-run=client -o yaml | kubeseal > sealed-secret.yaml
-#### 📈 Monitoring Applications
-#### Check Application Status
-bash
+```
+
+📈 Monitoring Applications
+Check Application Status
+```bash
 # Argo CD CLI
     argocd app list
     argocd app get postgres
@@ -321,16 +337,20 @@ bash
     kubectl get applications -n argocd
     kubectl get pods -n postgres
     kubectl get pods -n wordpress
-#### View Logs
-bash
+```
+
+View Logs
+```bash
 # PostgreSQL logs
     kubectl logs -n postgres -l app=postgres --tail=100
 
 # Argo CD logs
     kubectl logs -n argocd deployment/argocd-server --tail=50
-#### 🐛 Troubleshooting
-#### Application OutOfSync
-bash
+```
+
+🐛 Troubleshooting
+Application OutOfSync
+```bash
 # Force sync
     argocd app sync postgres --force
 
@@ -340,24 +360,30 @@ bash
 # Hard reset (destructive)
     kubectl patch application postgres -n argocd -p '{"metadata":{"finalizers":[]}}' --type=merge
     kubectl delete application postgres -n argocd
-#### ImagePullBackOff
-bash
+```
+
+ImagePullBackOff
+```bash
 # Check if nodes can pull images
     kubectl describe pod -n postgres <pod-name>
 
 # Common fixes:
-####  1. Add imagePullSecrets
-####  2. Use private registry mirror
-####  3. Increase disk space on nodes
-#### Storage Issues
-bash
+```
+
+1. Add imagePullSecrets
+2. Use private registry mirror
+3. Increase disk space on nodes
+Storage Issues
+```bash
 # Check PVC status
     kubectl get pvc -n postgres
 
 # Expand PVC (if storage class allows)
     kubectl patch pvc postgres-pvc -n postgres -p '{"spec":{"resources":{"requests":{"storage":"20Gi"}}}}'
-#### 📝 Git Commit Convention
-#### text
+```
+
+📝 Git Commit Convention
+```text
      <type>(<scope>): <subject>
 
      Types:
@@ -370,14 +396,16 @@ bash
      - test: Test updates
      - chore: Maintenance tasks
 
-#### Example:
-#### feat(postgres): Add auto-report number generation
-#### fix(wordpress): Update database connection string
-#### docs(readme): Add troubleshooting section
-#### 🔄 CI/CD Pipeline (Optional)
-#### For automated sync, add GitHub Actions:
+Example:
+```
 
-yaml
+feat(postgres): Add auto-report number generation
+fix(wordpress): Update database connection string
+docs(readme): Add troubleshooting section
+🔄 CI/CD Pipeline (Optional)
+For automated sync, add GitHub Actions:
+
+```yaml
 # .github/workflows/argocd-sync.yaml
     name: Sync Argo CD Apps
 
@@ -394,40 +422,42 @@ yaml
             run: |
               argocd app sync postgres --grpc-web
               argocd app sync word-press --grpc-web
-#### 📚 Additional Resources
-#### Argo CD Documentation
+```
 
-#### Kustomize Documentation
+📚 Additional Resources
+Argo CD Documentation
 
-#### Sealed Secrets Guide
+Kustomize Documentation
 
-#### 📄 License
-#### MIT License
+Sealed Secrets Guide
 
-#### 👤 Author
-#### Adari Bain - CKS Certified Kubernetes Security Specialist
+📄 License
+MIT License
 
-#### Last Updated: June 2025
-#### Argo CD Version: 2.10+
-#### Kubernetes: 1.28+
+👤 Author
+Adari Bain - CKS Certified Kubernetes Security Specialist
+
+Last Updated: June 2025
+Argo CD Version: 2.10+
+Kubernetes: 1.28+
 
 
 # 🤝 Contributing & Contact
 ---
-#### This portfolio is actively maintained. Feel free to:
+This portfolio is actively maintained. Feel free to:
 
-#### Fork for your own CKS preparation
+Fork for your own CKS preparation
 
-#### Submit issues for lab improvements
+Submit issues for lab improvements
 
 Connect for security consulting opportunities
 
 LinkedIn: https://www.linkedin.com/in/adari-bain-298924152/
 
-#### 📄 License
+📄 License
 ---
-#### Educational use - please attribute if reused in training materials.
+Educational use - please attribute if reused in training materials.
 
-#### Updated: June 2026 | Maintainer: Adari Bain | Certifications: CKS, CKA, AWS SA
+Updated: June 2026 | Maintainer: Adari Bain | Certifications: CKS, CKA, AWS SA
 
 ---
